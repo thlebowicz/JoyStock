@@ -7,14 +7,20 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Header from './Header';
+import StockCard from './StockCard';
+import './ListTab.css';
 
 function ListTab({data}) {
 
   return (
-    <div>
+    <body>
       <Header />
-      <div style={{marginTop: 100}}>{data.map(stock => stock.ticker.concat(' '))}</div>
-    </div>
+      <div style={{marginTop: 100}}>
+        <Container maxWidth='lg'>
+          {data.map(stock => <StockCard stock={stock} />)}
+        </Container>
+      </div>
+     </body>
   )
 
 }
