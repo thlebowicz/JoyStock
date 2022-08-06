@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import './index.css';
 
 function Login() {
 
@@ -30,7 +31,7 @@ function Login() {
           padding: 3,
           borderRadius: 2,
         }}>
-          <Typography variant='h4'>Sign-In</Typography>
+          <Typography variant='h4' sx={{ userSelect: 'none' }}>Sign-In</Typography>
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
               margin="normal"
@@ -61,6 +62,9 @@ function Login() {
             <Link 
               onClick={handleSignup}
               variant="body2"
+              sx = {{
+                userSelect: 'none',
+              }}
             >
               {"Don't have an account? Sign Up"}
             </Link>
