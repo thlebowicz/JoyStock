@@ -3,8 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import Login from './Login';
 import ListTab from './ListTab';
+import GraphTab from './GraphTab';
+import NotificationTab from './NotificationTab';
 import reportWebVitals from './reportWebVitals';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -16,11 +23,16 @@ const theme = createTheme();
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <body>
-        {/* <Login /> */}
-        <ListTab data={data} />
-      </body>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<Login />} />
+          <Route path='/list' element={<ListTab data={data} />} />
+          <Route path='/graph' element={<GraphTab />} />
+          <Route path='/notifications' element={<NotificationTab />} />
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
+    
   </React.StrictMode>
 );
 

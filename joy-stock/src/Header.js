@@ -11,12 +11,17 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './Header.css';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 
 
 
 function Header() {
 
-  const navigate = (path) => {};
+  const navigate = useNavigate();
 
   return (
     <AppBar component='nav' sx={{backgroundColor: 'black'}}>
@@ -24,7 +29,7 @@ function Header() {
         <List sx={{
           display: 'flex',
         }}>
-          <ListItem button={true} className='nav-button' onClick={() => navigate('/portfolio')}>
+          <ListItem button={true} className='nav-button' onClick={() => navigate('/list')}>
             Portfolio
           </ListItem>
           <ListItem button={true} className='nav-button' onClick={() => navigate('/graph')}>

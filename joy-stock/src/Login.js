@@ -1,4 +1,9 @@
 import * as React from 'react';
+import {
+  useParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -11,9 +16,12 @@ import './index.css';
 function Login() {
 
   const theme = createTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    navigate('/list');
   };
 
   const handleSignup = () => {};
