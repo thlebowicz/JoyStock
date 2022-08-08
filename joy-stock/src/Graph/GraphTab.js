@@ -6,17 +6,16 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Header from './Header';
-import StockCard from './StockCard';
+import Header from '../Header/Header.js';
 
-function NotificationTab() {
+function GraphTab() {
 
   return (
     <body>
       <Header />
       <div style={{marginTop: 100}}>
         <Container maxWidth='lg'>
-          Hello!!
+          Hello!
         </Container>
       </div>
      </body>
@@ -24,4 +23,4 @@ function NotificationTab() {
 
 }
 
-export default NotificationTab;
+export default GraphTab;

@@ -6,18 +6,16 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Header from './Header';
-import StockCard from './StockCard';
-import './ListTab.css';
+import Header from '../Header/Header.js';
 
-function ListTab({data}) {
+function NotificationTab() {
 
   return (
     <body>
       <Header />
       <div style={{marginTop: 100}}>
         <Container maxWidth='lg'>
-          {data.map(stock => <StockCard stock={stock} />)}
+          Hello!!
         </Container>
       </div>
      </body>
@@ -25,4 +23,4 @@ function ListTab({data}) {
 
 }
 
-export default ListTab;
+export default NotificationTab;

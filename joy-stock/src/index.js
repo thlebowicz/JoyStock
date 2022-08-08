@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import Login from './Login';
-import ListTab from './ListTab';
-import GraphTab from './GraphTab';
-import NotificationTab from './NotificationTab';
+import Login from './Login/Login';
+import ListTab from './List/ListTab';
+import GraphTab from './Graph/GraphTab.js';
+import NotificationTab from './Notifications/NotificationTab.js';
 import reportWebVitals from './reportWebVitals';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {

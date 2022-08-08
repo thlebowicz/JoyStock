@@ -6,17 +6,17 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Header from './Header';
-import StockCard from './StockCard';
+import Header from '../Header/Header.js';
+import StockCard from './StockCard.js';
+import './ListTab.css';
 
-function GraphTab() {
-
+function ListTab({data}) {
   return (
     <body>
       <Header />
       <div style={{marginTop: 100}}>
         <Container maxWidth='lg'>
-          Hello!
+          {data.map(stock => <StockCard stock={stock} />)}
         </Container>
       </div>
      </body>
@@ -24,4 +24,4 @@ function GraphTab() {
 
 }
 
-export default GraphTab;
+export default ListTab;
