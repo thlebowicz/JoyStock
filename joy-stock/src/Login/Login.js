@@ -21,7 +21,7 @@ function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     fetch('http://localhost:3000/')
-    .then(response => console.log(response));
+    .then(response => response.json()).then(json => console.log(json));
     navigate('/list');
   };
 
