@@ -8,8 +8,6 @@ app.use(cors());
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
-
-
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 = '/range/1/day/2021-07-22/2021-07-22?adjusted=true&sort=asc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
 
@@ -45,11 +43,10 @@ app.get('/', async (req, res) => {
 app.post('/stock', jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
         quantity = req.body.quantity;
-  console.log('Ticker: ', ticker, 'Quantity: ', quantity);
   
   if (!db[ticker]) {
     db[ticker] = quantity;
-  } else db[ticker] += quantity;
+  } else db[ticker] = parseInt(db[ticker]) + parseInt(quantity);
 
   const newData=  await refreshData();
   res.send(newData);

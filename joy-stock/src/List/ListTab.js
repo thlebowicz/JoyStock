@@ -34,7 +34,7 @@ function ListTab({ data, addTickerToData, readData }) {
             onChange={(e) => setTickerToAdd(e.target.value)} 
             placeholder='Type a ticker to add to your portfolio'
             style={{
-              width: '30%',
+              width: '35%',
               position: 'relative',
               right: '5em',
             }}
@@ -50,6 +50,16 @@ function ListTab({ data, addTickerToData, readData }) {
           />
           <Button variant="contained" style={{marginRight: '2em'}} onClick={handleClick}>Add to Portfolio</Button>
           <Button variant ="outlined" onClick={readData}>Refresh</Button>
+        </div>
+        <div style={{ 
+            marginTop: '2em',
+            marginBottom: '2em',
+            position: 'relative',
+            left: '5em', 
+          }}>
+          <Typography variant='h5'>
+              Portfolio value: ${data.length ? data.reduce((a,b) => a + (b.price * b.quantity), 0) : 0.00}
+          </Typography>
         </div>
           {data.map(stock => <StockCard stock={stock} />)}
         </Container>
