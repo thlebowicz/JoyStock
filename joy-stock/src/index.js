@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import Login from './Login/Login';
@@ -22,6 +22,14 @@ const theme = createTheme();
 
 root.render(
   <React.StrictMode>
+    <Wrapper />
+  </React.StrictMode>
+);
+
+function Wrapper() {
+
+
+  return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
@@ -32,9 +40,7 @@ root.render(
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
-    
-  </React.StrictMode>
-);
-
+  );
+}
 
 reportWebVitals();
