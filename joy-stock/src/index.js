@@ -15,9 +15,6 @@ import {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-let data = [{ticker: "GOOG", price: 10, quantity: 5}];
-for (let i = 0; i < 5; i++) { data = data.concat(data) };
-
 const theme = createTheme();
 
 root.render(
@@ -30,17 +27,38 @@ function Wrapper() {
 
   const [data, setData] = useState([]);
 
-  const updateData = () => {
+  const readData = () => {
     fetch('http://localhost:3000/')
     .then(response => response.json()).then(json => setData(json));
-  }
+  };
+
+  const addTickerToData = (tickerToAdd, quantity) => {
+    fetch('http://localhost:3000/stock', {
+      method: 'POST',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ticker: tickerToAdd,
+        quantity: quantity,
+      }),
+      cache: 'default'
+    }).then(response => response.json()).then(json => setData(json));
+  };
+
+  const updateQuantity = (ticker, newQuantity) => {};
 
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Login updateData={updateData} />} />
-          <Route path='/list' element={<ListTab data={data} />} />
+          <Route path='/' element={<Login readData={readData} />} />
+          <Route path='/list' element={<ListTab 
+            data={data} 
+            addTickerToData={addTickerToData} 
+            readData={readData} 
+          />} />
           <Route path='/graph' element={<GraphTab />} />
           <Route path='/notifications' element={<NotificationTab />} />
         </Routes>

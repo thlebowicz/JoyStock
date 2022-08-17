@@ -1,37 +1,58 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+
 const cors = require('cors');
 app.use(cors());
+
+const bodyParser = require('body-parser');
+const jsonParser = bodyParser.json();
+
+
 
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 = '/range/1/day/2021-07-22/2021-07-22?adjusted=true&sort=asc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
 
-const data1 = [{ticker: "GOOG", price: 10, quantity: 5}];
+const db = {};
 
-
-const fetchTickers = async (tickers = ['GS', 'AAPL', 'W']) => {
+const fetchTickers = async (tickers = ['GS', 'AAPL', 'W', 'DDOG', 'XPO']) => {
   const stockPrices = [];
   for (const ticker of tickers) {
     await fetch(QUERY_1 + ticker + QUERY_2).then(data => data.json()).then(res => {
-      stockPrices.push(res.results ? [res.ticker, res.results[0].vw] : ''); 
+      stockPrices.push(res.results ? [res.ticker, res.results[0].vw] : ['Loading', 0]); 
     });
   }
-  console.log(stockPrices);
   return stockPrices;
 }
 
-
-app.get('/', async (req, res) => {
-  let data = await fetchTickers();
+const refreshData = async () => {
+  let data = await fetchTickers(Object.keys(db));
   data = data.map((arr) => {
     return {
       ticker: arr[0],
       price: arr[1],
-      quantity: 1,
+      quantity: db[arr[0]],
     };
   });
-  res.send(data);
+  return data;
+}
+
+app.get('/', async (req, res) => {
+  const newData = await refreshData();
+  res.send(newData);
+});
+
+app.post('/stock', jsonParser, async (req, res) => {
+  const ticker = req.body.ticker,
+        quantity = req.body.quantity;
+  console.log('Ticker: ', ticker, 'Quantity: ', quantity);
+  
+  if (!db[ticker]) {
+    db[ticker] = quantity;
+  } else db[ticker] += quantity;
+
+  const newData=  await refreshData();
+  res.send(newData);
 });
 
 app.listen(port, () => {

@@ -37,9 +37,9 @@ function StockCard({stock}) {
            display: 'flex',
            alignItems: 'center',
         }}>
-          <Typography sx={{marginLeft: 5}} variant='h6'>{stock.ticker}</Typography>
-          <Typography sx={{marginLeft: 5}} variant='h7'>${stock.price}</Typography>
-          <Typography sx={{marginLeft: 5}} variant='h7'>{stock.quantity} shares</Typography>
+          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h6'>{stock.ticker}</Typography>
+          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>${stock.price}</Typography>
+          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>{stock.quantity} shares</Typography>
           <Typography sx={{marginLeft: 5, flexGrow: 1}} variant='h7'>Total holdings: ${stock.quantity * stock.price}</Typography>
           <IconButton 
             sx={{
