@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-function Login() {
+function Login({ updateData }) {
 
   const theme = createTheme();
   const navigate = useNavigate();
@@ -20,8 +20,7 @@ function Login() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetch('http://localhost:3000/')
-    .then(response => response.json()).then(json => console.log(json));
+    updateData();
     navigate('/list');
   };
 

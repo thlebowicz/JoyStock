@@ -28,12 +28,18 @@ root.render(
 
 function Wrapper() {
 
+  const [data, setData] = useState([]);
+
+  const updateData = () => {
+    fetch('http://localhost:3000/')
+    .then(response => response.json()).then(json => setData(json));
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Login />} />
+          <Route path='/' element={<Login updateData={updateData} />} />
           <Route path='/list' element={<ListTab data={data} />} />
           <Route path='/graph' element={<GraphTab />} />
           <Route path='/notifications' element={<NotificationTab />} />
