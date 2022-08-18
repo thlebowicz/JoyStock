@@ -52,6 +52,14 @@ app.post('/stock', jsonParser, async (req, res) => {
   res.send(newData);
 });
 
+app.post('/signup', jsonParser, async (req, res) => {
+  const userID = req.body.newUserID, 
+        password = req.body.newPassword; 
+  console.log(userID, password);
+  res.send('Got it!');
+  // Add user to database
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 });

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   useParams,
   useNavigate,
@@ -10,6 +10,8 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
+import DialogContentText from '@mui/material/DialogContentText';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function Login({ readData }) {
@@ -18,13 +20,39 @@ function Login({ readData }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [dialogToggle, setDialogToggle] = useState(false);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     readData();
     navigate('/list');
   };
 
-  const handleSignup = () => {};
+  const openSignup = () => {
+    setDialogToggle(true);
+  };
+
+  const handleSignup = (event) => {
+    event.preventDefault();
+    fetch('http://localhost:3000/signup', {
+      method: 'POST',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        newUserID: event.target.newUser.value,
+        newPassword: event.target.newPass.value,
+      }),
+      cache: 'default'
+    }).then(response => console.log(response));
+    onCloseDialog();
+  };  
+
+  const onCloseDialog = () => {
+    setDialogToggle(false);
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -68,16 +96,61 @@ function Login({ readData }) {
               Sign In
             </Button>
             <Link 
-              onClick={handleSignup}
+              onClick={openSignup}
               variant="body2"
               sx = {{
                 userSelect: 'none',
               }}
             >
-              {"Don't have an account? Sign Up"}
+              Don't have an account? Sign Up
             </Link>
           </Box>
         </Box>
+        <Dialog 
+          open={dialogToggle} 
+          onClose={onCloseDialog}
+          sx={{
+          }}
+        >
+              <Box 
+                component="form" 
+                onSubmit={handleSignup}
+                sx={{
+                  padding: '3em',
+                  borderRadius: '4em',
+                }}
+              >
+              <Typography variant='h4' sx={{ userSelect: 'none', textAlign: 'center' }}>Sign-Up</Typography>
+              <DialogContentText sx={{ textAlign: 'center' }}>
+                  Enter new username and password below
+              </DialogContentText>
+                <TextField 
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="newUser"
+                  label="New Username"
+                  autoComplete="new-user"
+                  autoFocus
+                />   
+                <TextField 
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="newPass"
+                  label="New Password"
+                  autoComplete="new-password"
+                  autoFocus
+                />                   
+                <Button 
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 2, mb: 2 }}
+                >Submit</Button>
+                </Box>
+              </Dialog>
+           
       </Container>
     </ThemeProvider>
   );
