@@ -1,9 +1,12 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
 const port = 3000;
 
 const cors = require('cors');
 app.use(cors());
+
+// mongoose.connect('');
 
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
@@ -11,6 +14,7 @@ const jsonParser = bodyParser.json();
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 = '/range/1/day/2021-07-22/2021-07-22?adjusted=true&sort=asc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
 
+// Instead of using this dummy DB, save data under User in mongo then draw from user on refresh
 const db = {};
 
 const fetchTickers = async (tickers = ['GS', 'AAPL', 'W', 'DDOG', 'XPO']) => {
@@ -24,6 +28,7 @@ const fetchTickers = async (tickers = ['GS', 'AAPL', 'W', 'DDOG', 'XPO']) => {
 }
 
 const refreshData = async () => {
+  // Replace db keys here with tickers from mongo database
   let data = await fetchTickers(Object.keys(db));
   data = data.map((arr) => {
     return {
@@ -37,6 +42,7 @@ const refreshData = async () => {
 
 app.get('/', async (req, res) => {
   const newData = await refreshData();
+  console.log(db);
   res.send(newData);
 });
 
@@ -55,9 +61,19 @@ app.post('/stock', jsonParser, async (req, res) => {
 app.post('/signup', jsonParser, async (req, res) => {
   const userID = req.body.newUserID, 
         password = req.body.newPassword; 
+      
   console.log(userID, password);
-  res.send('Got it!');
-  // Add user to database
+  // Adding user to Mongo database
+  // try {
+  //   const user = await  User.create({
+  //     userID,
+  //     password,
+  //     stockQuantities: {}
+  //   }); 
+  //   res.json({ status: 'ok' });
+  // } catch (err) { 
+  //   res.json({ status: 'error' });
+  //  }
 });
 
 app.listen(port, () => {
