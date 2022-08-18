@@ -22,8 +22,20 @@ function Login({ readData }) {
 
   const [dialogToggle, setDialogToggle] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleLogin = (event) => {
     event.preventDefault();
+    fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userID: event.target.user.value,
+        password: event.target.password.value,
+      }),
+      cache: 'default'
+    }).then(response => console.log(response.json()));
     readData();
     navigate('/list');
   };
@@ -34,13 +46,14 @@ function Login({ readData }) {
 
   const handleSignup = (event) => {
     event.preventDefault();
-    fetch('http://localhost:3000/signup', {
+    fetch('http://localhost:3000/login', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        
         newUserID: event.target.newUser.value,
         newPassword: event.target.newPass.value,
       }),
@@ -68,14 +81,14 @@ function Login({ readData }) {
           borderRadius: 2,
         }}>
           <Typography variant='h4' sx={{ userSelect: 'none' }}>Sign-In</Typography>
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleLogin}>
             <TextField
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email"
-              autoComplete="email"
+              id="user"
+              label="Username"
+              autoComplete="username"
               autoFocus
             />
             <TextField

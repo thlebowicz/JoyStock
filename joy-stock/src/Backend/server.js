@@ -1,5 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
+const User = require('./models/user.model');
+const jwt =  require('jsonwebtoken');
 const app = express();
 const port = 3000;
 
@@ -42,7 +44,6 @@ const refreshData = async () => {
 
 app.get('/', async (req, res) => {
   const newData = await refreshData();
-  console.log(db);
   res.send(newData);
 });
 
@@ -56,6 +57,13 @@ app.post('/stock', jsonParser, async (req, res) => {
 
   const newData=  await refreshData();
   res.send(newData);
+});
+
+app.post('/login', jsonParser, async (req, res) => {
+  const userID = req.body.userID, 
+        password = req.body.password;
+  console.log(userID, password);
+  res.send('ok');
 });
 
 app.post('/signup', jsonParser, async (req, res) => {
