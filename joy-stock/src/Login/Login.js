@@ -46,7 +46,7 @@ function Login({ readData }) {
 
   const handleSignup = (event) => {
     event.preventDefault();
-    fetch('http://localhost:3000/login', {
+    fetch('http://localhost:3000/signup', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
