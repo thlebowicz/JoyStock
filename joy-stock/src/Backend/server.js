@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 // const mongoose = require('mongoose');
 const User = require('./models/user.model');
@@ -8,6 +10,7 @@ const port = 3000;
 const cors = require('cors');
 app.use(cors());
 
+const secret = '13685c935eeabf0eaa10e00fadca1e730df9d58509ea0fd7961b7d968c8bcb82aca7462b8740f59278ba234e14921d7f16c3a4a45459c846eafcfa16384a0e55';
 // mongoose.connect('');
 
 const bodyParser = require('body-parser');
@@ -42,12 +45,25 @@ const refreshData = async () => {
   return data;
 }
 
-app.get('/', async (req, res) => {
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.sendStatus(401);
+  else {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (username, err) => {
+      if (err) return res.sendStatus(403);
+      req.username = username; 
+      next();
+    });
+  }
+}
+
+app.get('/', authenticateToken, async (req, res) => {
   const newData = await refreshData();
   res.send(newData);
 });
 
-app.post('/stock', jsonParser, async (req, res) => {
+app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
         quantity = req.body.quantity;
   
@@ -59,18 +75,19 @@ app.post('/stock', jsonParser, async (req, res) => {
   res.send(newData);
 });
 
-app.post('/login', jsonParser, async (req, res) => {
-  const userID = req.body.userID, 
+app.post('/login', jsonParser, (req, res) => {
+  const username = req.body.username, 
         password = req.body.password;
-  console.log(userID, password);
-  res.send('ok');
+  console.log(username, password);
+  const accessToken = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
+  res.json({ accessToken });
 });
 
 app.post('/signup', jsonParser, async (req, res) => {
-  const userID = req.body.newUserID, 
+  const username = req.body.newUsername, 
         password = req.body.newPassword; 
       
-  console.log(userID, password);
+  console.log(username, password);
   // Adding user to Mongo database
   // try {
   //   const user = await  User.create({

@@ -26,18 +26,25 @@ root.render(
 function Wrapper() {
 
   const [data, setData] = useState([]);
+  const [authToken, setAuthToken] = useState('');
 
   const readData = () => {
-    fetch('http://localhost:3000/')
+    fetch('http://localhost:3000/', {
+      headers: {
+        Authorization: 'Bearer ' + authToken,
+      }
+    })
     .then(response => response.json()).then(json => setData(json));
   };
 
   const addTickerToData = (tickerToAdd, quantity) => {
+    console.log(authToken);
     fetch('http://localhost:3000/stock', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + authToken,
       },
       body: JSON.stringify({
         ticker: tickerToAdd,
@@ -53,7 +60,7 @@ function Wrapper() {
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
-          <Route path='/' element={<Login readData={readData} />} />
+          <Route path='/' element={<Login readData={readData} setAuthToken={setAuthToken} />} />
           <Route path='/list' element={<ListTab 
             data={data} 
             addTickerToData={addTickerToData} 

@@ -14,7 +14,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContentText from '@mui/material/DialogContentText';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-function Login({ readData }) {
+function Login({ readData, setAuthToken }) {
 
   const theme = createTheme();
   const navigate = useNavigate();
@@ -22,20 +22,23 @@ function Login({ readData }) {
 
   const [dialogToggle, setDialogToggle] = useState(false);
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
-    fetch('http://localhost:3000/login', {
+    await fetch('http://localhost:3000/login', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        userID: event.target.user.value,
+        username: event.target.user.value,
         password: event.target.password.value,
       }),
       cache: 'default'
-    }).then(response => console.log(response.json()));
+    }).then(response => response.json()).then(token => {
+      console.log('Token ', token);
+      setAuthToken(token);
+    });
     readData();
     navigate('/list');
   };
@@ -54,7 +57,7 @@ function Login({ readData }) {
       },
       body: JSON.stringify({
         
-        newUserID: event.target.newUser.value,
+        newUsername: event.target.newUser.value,
         newPassword: event.target.newPass.value,
       }),
       cache: 'default'
