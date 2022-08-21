@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  useParams,
-  useNavigate,
-  useLocation,
-} from "react-router-dom";
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -15,7 +11,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function Login({ readData, setAuthToken }) {
-
   const theme = createTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,19 +23,24 @@ function Login({ readData, setAuthToken }) {
       method: 'POST',
       headers: {
         Accept: 'application.json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         username: event.target.user.value,
         password: event.target.password.value,
       }),
-      cache: 'default'
-    }).then(response => response.json()).then(token => {
-      console.log('Token ', token);
-      setAuthToken(token);
-    });
-    readData();
-    navigate('/list');
+      cache: 'default',
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((token, err) => {
+        setAuthToken(token);
+        readData();
+        if (!err) {
+          navigate('/list');
+        }
+      });
   };
 
   const openSignup = () => {
@@ -53,37 +53,39 @@ function Login({ readData, setAuthToken }) {
       method: 'POST',
       headers: {
         Accept: 'application.json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        
-        newUsername: event.target.newUser.value,
-        newPassword: event.target.newPass.value,
+        username: event.target.newUser.value,
+        password: event.target.newPass.value,
       }),
-      cache: 'default'
-    }).then(response => console.log(response));
+      cache: 'default',
+    }).then((response) => console.log('response from sign up', response));
     onCloseDialog();
-  };  
+  };
 
   const onCloseDialog = () => {
     setDialogToggle(false);
   };
 
-
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth='sm'>
-        <Box sx={{
-          marginTop: '30%',
-          height: 300,
-          border: '1px solid black',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: 3,
-          borderRadius: 2,
-        }}>
-          <Typography variant='h4' sx={{ userSelect: 'none' }}>Sign-In</Typography>
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            marginTop: '30%',
+            height: 300,
+            border: '1px solid black',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: 3,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h4" sx={{ userSelect: 'none' }}>
+            Sign-In
+          </Typography>
           <Box component="form" onSubmit={handleLogin}>
             <TextField
               margin="normal"
@@ -111,10 +113,10 @@ function Login({ readData, setAuthToken }) {
             >
               Sign In
             </Button>
-            <Link 
+            <Link
               onClick={openSignup}
               variant="body2"
-              sx = {{
+              sx={{
                 userSelect: 'none',
               }}
             >
@@ -122,55 +124,55 @@ function Login({ readData, setAuthToken }) {
             </Link>
           </Box>
         </Box>
-        <Dialog 
-          open={dialogToggle} 
-          onClose={onCloseDialog}
-          sx={{
-          }}
-        >
-              <Box 
-                component="form" 
-                onSubmit={handleSignup}
-                sx={{
-                  padding: '3em',
-                  borderRadius: '4em',
-                }}
-              >
-              <Typography variant='h4' sx={{ userSelect: 'none', textAlign: 'center' }}>Sign-Up</Typography>
-              <DialogContentText sx={{ textAlign: 'center' }}>
-                  Enter new username and password below
-              </DialogContentText>
-                <TextField 
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="newUser"
-                  label="New Username"
-                  autoComplete="new-user"
-                  autoFocus
-                />   
-                <TextField 
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="newPass"
-                  label="New Password"
-                  autoComplete="new-password"
-                  autoFocus
-                />                   
-                <Button 
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                >Submit</Button>
-                </Box>
-              </Dialog>
-           
+        <Dialog open={dialogToggle} onClose={onCloseDialog} sx={{}}>
+          <Box
+            component="form"
+            onSubmit={handleSignup}
+            sx={{
+              padding: '3em',
+              borderRadius: '4em',
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ userSelect: 'none', textAlign: 'center' }}
+            >
+              Sign-Up
+            </Typography>
+            <DialogContentText sx={{ textAlign: 'center' }}>
+              Enter new username and password below
+            </DialogContentText>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="newUser"
+              label="New Username"
+              autoComplete="new-user"
+              autoFocus
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="newPass"
+              label="New Password"
+              autoComplete="new-password"
+              autoFocus
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2, mb: 2 }}
+            >
+              Submit
+            </Button>
+          </Box>
+        </Dialog>
       </Container>
     </ThemeProvider>
   );
-
 }
 
 export default Login;

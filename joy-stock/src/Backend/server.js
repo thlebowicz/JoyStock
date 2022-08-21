@@ -1,36 +1,45 @@
 require('dotenv').config();
-
 const express = require('express');
-// const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const User = require('./models/user.model');
 const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
-
 const cors = require('cors');
-app.use(cors());
-
-const secret = '13685c935eeabf0eaa10e00fadca1e730df9d58509ea0fd7961b7d968c8bcb82aca7462b8740f59278ba234e14921d7f16c3a4a45459c846eafcfa16384a0e55';
-// mongoose.connect('');
-
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect('mongodb://localhost:27017/joystock');
+
+const secret =
+  '13685c935eeabf0eaa10e00fadca1e730df9d58509ea0fd7961b7d968c8bcb82aca7462b8740f59278ba234e14921d7f16c3a4a45459c846eafcfa16384a0e55';
+// mongoose.connect('');
+
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
-const QUERY_2 = '/range/1/day/2021-07-22/2021-07-22?adjusted=true&sort=asc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
+const QUERY_2 =
+  '/range/1/day/2021-07-22/2021-07-22?adjusted=true&sort=asc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
 
 // Instead of using this dummy DB, save data under User in mongo then draw from user on refresh
 const db = {};
 
-const fetchTickers = async (tickers = ['GS', 'AAPL', 'W', 'DDOG', 'XPO']) => {
+const fetchTickers = async (
+  tickers = ['GS', 'AAPL', 'W', 'DDOG', 'XPO']
+) => {
   const stockPrices = [];
   for (const ticker of tickers) {
-    await fetch(QUERY_1 + ticker + QUERY_2).then(data => data.json()).then(res => {
-      stockPrices.push(res.results ? [res.ticker, res.results[0].vw] : ['Loading', 0]); 
-    });
+    await fetch(QUERY_1 + ticker + QUERY_2)
+      .then((data) => data.json())
+      .then((res) => {
+        stockPrices.push(
+          res.results ? [res.ticker, res.results[0].vw] : ['Loading', 0]
+        );
+      });
   }
   return stockPrices;
-}
+};
 
 const refreshData = async () => {
   // Replace db keys here with tickers from mongo database
@@ -43,7 +52,7 @@ const refreshData = async () => {
     };
   });
   return data;
-}
+};
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -52,11 +61,11 @@ const authenticateToken = (req, res, next) => {
   else {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (username, err) => {
       if (err) return res.sendStatus(403);
-      req.username = username; 
+      req.username = username;
       next();
     });
   }
-}
+};
 
 app.get('/', authenticateToken, async (req, res) => {
   const newData = await refreshData();
@@ -66,7 +75,8 @@ app.get('/', authenticateToken, async (req, res) => {
 app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
     quantity = req.body.quantity;
-  
+  console.log(ticker, quantity);
+
   if (!db[ticker]) {
     db[ticker] = quantity;
   } else db[ticker] = parseInt(db[ticker]) + parseInt(quantity);
@@ -75,32 +85,49 @@ app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
   res.send(newData);
 });
 
-app.post('/login', jsonParser, (req, res) => {
-  const username = req.body.username, 
+app.post('/login', async (req, res) => {
+  const username = req.body.username,
     password = req.body.password;
-  console.log(username, password);
-  const accessToken = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
-  res.json({ accessToken });
+  console.log('Login API call');
+  console.log(`Username: ${username}, password: ${password}`);
+
+  const user = await User.findOne({
+    userID: username,
+  });
+
+  if (!user) {
+    console.log('Bad user');
+    res.json({ status: 'error', error: 'Invalid username' });
+  }
+
+  const isPasswordValid = password === user.password;
+  console.log(`Valid pass? ${isPasswordValid}`);
+
+  if (isPasswordValid) {
+    const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
+    res.json({ status: 'ok', user: token });
+  } else {
+    res.json({ status: 'error', user: false });
+  }
 });
 
 app.post('/signup', jsonParser, async (req, res) => {
-  const username = req.body.newUsername, 
-    password = req.body.newPassword; 
-      
-  console.log(username, password);
-  // Adding user to Mongo database
-  // try {
-  //   const user = await  User.create({
-  //     userID,
-  //     password,
-  //     stockQuantities: {}
-  //   }); 
-  //   res.json({ status: 'ok' });
-  // } catch (err) { 
-  //   res.json({ status: 'error' });
-  //  }
+  console.log('Sign Up API Call');
+  console.log(req.body);
+  try {
+    await User.create({
+      userID: req.body.username,
+      password: req.body.password,
+    });
+    res.json({ status: 'ok' });
+  } catch (err) {
+    res.json({
+      status: 'error',
+      error: 'error',
+    });
+  }
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`Test app listening on port ${port}`);
 });
