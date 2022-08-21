@@ -63,7 +63,7 @@ app.get('/', authenticateToken, async (req, res) => {
   res.send(newData);
 });
 
-app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
+app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
     quantity = req.body.quantity;
   
@@ -75,10 +75,18 @@ app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
   res.send(newData);
 });
 
+app.post('/delete-stock', authenticateToken, jsonParser, async (req, res) => {
+  const ticker = req.body.ticker;
+  console.log('Ticker: ',ticker);
+  delete db[ticker];
+  console.log(db);
+  const newData = await refreshData();
+  res.send(newData);
+});
+
 app.post('/login', jsonParser, (req, res) => {
   const username = req.body.username, 
     password = req.body.password;
-  console.log(username, password);
   const accessToken = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
   res.json({ accessToken });
 });
@@ -87,7 +95,6 @@ app.post('/signup', jsonParser, async (req, res) => {
   const username = req.body.newUsername, 
     password = req.body.newPassword; 
       
-  console.log(username, password);
   // Adding user to Mongo database
   // try {
   //   const user = await  User.create({

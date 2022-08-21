@@ -9,12 +9,12 @@ import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './StockCard.css';
-import { ExpandMore } from '@mui/icons-material';
+import { ExpandMore, Clear } from '@mui/icons-material';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CardContent from '@mui/material/CardContent';
 
-function StockCard({stock}) {
+function StockCard({stock, deleteTickerFromData}) {
 
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
@@ -41,6 +41,18 @@ function StockCard({stock}) {
           <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>${stock.price}</Typography>
           <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>{stock.quantity} shares</Typography>
           <Typography sx={{marginLeft: 5, flexGrow: 1}} variant='h7'>Total holdings: ${stock.quantity * stock.price}</Typography>
+          <IconButton
+            sx={{
+              backgroundColor: '#969696',
+              '&:hover': {
+                backgroundColor: 'gray',
+              },
+            }}
+            onClick={() => deleteTickerFromData(stock.ticker)}
+          >
+            <Clear />
+          </IconButton>
+          
           <IconButton 
             sx={{
               backgroundColor: '#969696',

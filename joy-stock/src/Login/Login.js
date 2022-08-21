@@ -36,10 +36,9 @@ function Login({ readData, setAuthToken }) {
       }),
       cache: 'default'
     }).then(response => response.json()).then(token => {
-      console.log('Token ', token);
       setAuthToken(token);
+      readData();
     });
-    readData();
     navigate('/list');
   };
 

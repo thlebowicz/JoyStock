@@ -11,7 +11,7 @@ import Header from '../Header/Header.js';
 import StockCard from './StockCard.js';
 import './ListTab.css';
 
-function ListTab({ data, addTickerToData, readData }) {
+function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
 
   const [tickerToAdd, setTickerToAdd] = useState('');
   const [quantityToAdd, setQuantityToAdd] = useState(0);
@@ -61,7 +61,7 @@ function ListTab({ data, addTickerToData, readData }) {
               Portfolio value: ${data.length ? data.reduce((a,b) => a + (b.price * b.quantity), 0) : 0.00}
           </Typography>
         </div>
-          {data.map(stock => <StockCard stock={stock} />)}
+          {data.map(stock => <StockCard stock={stock} deleteTickerFromData={deleteTickerFromData} />)}
         </Container>
       </div>
      </body>
