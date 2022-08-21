@@ -34,12 +34,13 @@ function Login({ readData, setAuthToken }) {
       .then((response) => {
         return response.json();
       })
-      .then((token, err) => {
-        setAuthToken(token);
-        readData();
-        if (!err) {
+      .then((json, err) => {
+        const token = json.token;
+        if (token) {
+          setAuthToken(token);
+          readData();
           navigate('/list');
-        }
+        } else alert('Invalid login!');
       });
   };
 

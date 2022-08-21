@@ -105,9 +105,9 @@ app.post('/login', async (req, res) => {
 
   if (isPasswordValid) {
     const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
-    res.json({ status: 'ok', user: token });
+    res.json({ status: 'ok', token: token });
   } else {
-    res.json({ status: 'error', user: false });
+    res.json({ status: 'error', token: false });
   }
 });
 
