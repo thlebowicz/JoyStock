@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 // const mongoose = require('mongoose');
 const User = require('./models/user.model');
-const jwt =  require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
 
@@ -65,19 +65,19 @@ app.get('/', authenticateToken, async (req, res) => {
 
 app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
-        quantity = req.body.quantity;
+    quantity = req.body.quantity;
   
   if (!db[ticker]) {
     db[ticker] = quantity;
   } else db[ticker] = parseInt(db[ticker]) + parseInt(quantity);
 
-  const newData=  await refreshData();
+  const newData = await refreshData();
   res.send(newData);
 });
 
 app.post('/login', jsonParser, (req, res) => {
   const username = req.body.username, 
-        password = req.body.password;
+    password = req.body.password;
   console.log(username, password);
   const accessToken = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
   res.json({ accessToken });
@@ -85,7 +85,7 @@ app.post('/login', jsonParser, (req, res) => {
 
 app.post('/signup', jsonParser, async (req, res) => {
   const username = req.body.newUsername, 
-        password = req.body.newPassword; 
+    password = req.body.newPassword; 
       
   console.log(username, password);
   // Adding user to Mongo database
