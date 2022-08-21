@@ -38,8 +38,7 @@ function Wrapper() {
   };
 
   const addTickerToData = (tickerToAdd, quantity) => {
-    console.log(authToken);
-    fetch('http://localhost:3000/stock', {
+    fetch('http://localhost:3000/add-stock', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
@@ -54,6 +53,22 @@ function Wrapper() {
     }).then(response => response.json()).then(json => setData(json));
   };
 
+  const deleteTickerFromData = (tickerToDelete) => {
+    console.log('meme');
+    fetch('http://localhost:3000/delete-stock', {
+      method: 'POST',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + authToken,
+      },
+      body: JSON.stringify({
+        ticker: tickerToDelete,
+      }),
+      cache: 'default'
+    }).then(response => response.json()).then(json => setData(json));
+  }
+
   const updateQuantity = (ticker, newQuantity) => {};
 
   return (
@@ -64,6 +79,7 @@ function Wrapper() {
           <Route path='/list' element={<ListTab 
             data={data} 
             addTickerToData={addTickerToData} 
+            deleteTickerFromData={deleteTickerFromData}
             readData={readData} 
           />} />
           <Route path='/graph' element={<GraphTab />} />

@@ -72,7 +72,7 @@ app.get('/', authenticateToken, async (req, res) => {
   res.send(newData);
 });
 
-app.post('/stock', authenticateToken, jsonParser, async (req, res) => {
+app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
     quantity = req.body.quantity;
   console.log(ticker, quantity);
@@ -126,6 +126,15 @@ app.post('/signup', jsonParser, async (req, res) => {
       error: 'error',
     });
   }
+});
+
+app.post('/delete-stock', authenticateToken, jsonParser, async (req, res) => {
+  const ticker = req.body.ticker;
+  console.log('Ticker: ', ticker);
+  delete db[ticker];
+  console.log(db);
+  const newData = await refreshData();
+  res.send(newData);
 });
 
 app.listen(port, () => {
