@@ -12,7 +12,7 @@ const jsonParser = bodyParser.json();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/joystock');
+mongoose.connect('mongodb://localhost:27017/joystock2');
 
 const secret =
   '13685c935eeabf0eaa10e00fadca1e730df9d58509ea0fd7961b7d968c8bcb82aca7462b8740f59278ba234e14921d7f16c3a4a45459c846eafcfa16384a0e55';
@@ -57,9 +57,11 @@ const refreshData = async () => {
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
-  else {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (username, err) => {
+  if (!token) {
+    return res.sendStatus(401);
+  } else {
+    console.log(`token sent = ${token}`);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, username) => {
       if (err) return res.sendStatus(403);
       req.username = username;
       next();
@@ -98,16 +100,15 @@ app.post('/login', async (req, res) => {
   if (!user) {
     console.log('Bad user');
     res.json({ status: 'error', error: 'Invalid username' });
-  }
-
-  const isPasswordValid = password === user.password;
-  console.log(`Valid pass? ${isPasswordValid}`);
-
-  if (isPasswordValid) {
-    const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
-    res.json({ status: 'ok', token: token });
   } else {
-    res.json({ status: 'error', token: false });
+    const isPasswordValid = password === user.password;
+    console.log(`Valid pass? ${isPasswordValid}`);
+    if (isPasswordValid) {
+      const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
+      res.json({ status: 'ok', token: token });
+    } else {
+      res.json({ status: 'error', token: false });
+    }
   }
 });
 
@@ -128,14 +129,19 @@ app.post('/signup', jsonParser, async (req, res) => {
   }
 });
 
-app.post('/delete-stock', authenticateToken, jsonParser, async (req, res) => {
-  const ticker = req.body.ticker;
-  console.log('Ticker: ', ticker);
-  delete db[ticker];
-  console.log(db);
-  const newData = await refreshData();
-  res.send(newData);
-});
+app.post(
+  '/delete-stock',
+  authenticateToken,
+  jsonParser,
+  async (req, res) => {
+    const ticker = req.body.ticker;
+    console.log('Ticker: ', ticker);
+    delete db[ticker];
+    console.log(db);
+    const newData = await refreshData();
+    res.send(newData);
+  }
+);
 
 app.listen(port, () => {
   console.log(`Test app listening on port ${port}`);

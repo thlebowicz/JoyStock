@@ -10,7 +10,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContentText from '@mui/material/DialogContentText';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-function Login({ readData, setAuthToken }) {
+function Login({ readData, createToken }) {
   const theme = createTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,7 +37,7 @@ function Login({ readData, setAuthToken }) {
       .then((json, err) => {
         const token = json.token;
         if (token) {
-          setAuthToken(token);
+          createToken(token);
           readData();
           navigate('/list');
         } else alert('Invalid login!');
