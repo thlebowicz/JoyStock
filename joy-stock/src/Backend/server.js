@@ -63,19 +63,26 @@ const fetchTickers = async (
 };
 
 const refreshData = async (user) => {
-  // Replace db keys here with tickers from mongo database
+  if (!user) {
+    return null;
+  };
 
-  console.log(user.stockQuantities);
+  const stockQtys = user.stockQuantities;
+  const tickers = [...user.stockQuantities.keys()];
+  const newPrices = await fetchTickers(tickers);
 
-  // let data = await fetchTickers(Object.keys(db));
-  // data = data.map((arr) => {
-  //   return {
-  //     ticker: arr[0],
-  //     price: arr[1],
-  //     quantity: db[arr[0]],
-  //   };
-  // });
-  // return data;
+  for (const [ticker, qty] of stockQtys) {
+    console.log(ticker, qty);
+  }
+
+  const newData = newPrices.map(arr => {
+    return {
+      ticker: arr[0],
+      price: arr[1],
+      quantity: stockQtys.get(arr[0]),
+    }
+  })
+  return newData;
 };
 
 app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
@@ -91,24 +98,17 @@ app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   if (!user) {
     res.json({ status: 'error', error: 'invalid user' });
   } else {
+    console.log(`user ${user}`)
     const curr = user.stockQuantities.get(ticker);
     const currVal = curr ? parseInt(curr) : 0;
     const newVal = parseInt(quantity) + currVal;
     console.log(`currVal = ${currVal}, newVal = ${newVal}`);
     console.log(`ticker = ${ticker}`)
     user.stockQuantities.set(ticker, newVal);
+    user.save();
     const newData = await refreshData(user); 
+    res.send(newData);
   }
-
-
-  // console.log(`username = ${req.username}`);
-
-  // if (!db[ticker]) {
-  //   db[ticker] = quantity;
-  // } else db[ticker] = parseInt(db[ticker]) + parseInt(quantity);
-
-  // const newData = await refreshData();
-  // res.send(newData);
 });
 
 app.post('/login', async (req, res) => {
