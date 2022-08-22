@@ -32,7 +32,6 @@ const authenticateToken = (req, res, next) => {
   if (!token) {
     return res.sendStatus(401);
   } else {
-    console.log(`token sent = ${token}`);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, username) => {
       if (err) return res.sendStatus(403);
       req.username = username;
@@ -42,13 +41,15 @@ const authenticateToken = (req, res, next) => {
 };
 
 app.get('/', authenticateToken, async (req, res) => {
-  const newData = await refreshData();
+  const username = req.username;
+  const user = await User.findOne({
+    userID: username,
+  });
+  const newData = await refreshData(user);
   res.send(newData);
 });
 
-const fetchTickers = async (
-  tickers = ['GS', 'AAPL', 'W', 'DDOG', 'XPO']
-) => {
+const fetchTickers = async (tickers) => {
   const stockPrices = [];
   for (const ticker of tickers) {
     await fetch(QUERY_1 + ticker + QUERY_2)
@@ -71,9 +72,9 @@ const refreshData = async (user) => {
   const tickers = [...user.stockQuantities.keys()];
   const newPrices = await fetchTickers(tickers);
 
-  for (const [ticker, qty] of stockQtys) {
-    console.log(ticker, qty);
-  }
+  // for (const [ticker, qty] of stockQtys) {
+  //   console.log(ticker, qty);
+  // }
 
   const newData = newPrices.map(arr => {
     return {
@@ -81,7 +82,7 @@ const refreshData = async (user) => {
       price: arr[1],
       quantity: stockQtys.get(arr[0]),
     }
-  })
+  });
   return newData;
 };
 
@@ -89,7 +90,6 @@ app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
     quantity = req.body.quantity,
     username = req.username;
-  console.log(ticker, quantity);
 
   const user = await User.findOne({
     userID: username,
@@ -98,12 +98,9 @@ app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   if (!user) {
     res.json({ status: 'error', error: 'invalid user' });
   } else {
-    console.log(`user ${user}`)
     const curr = user.stockQuantities.get(ticker);
     const currVal = curr ? parseInt(curr) : 0;
     const newVal = parseInt(quantity) + currVal;
-    console.log(`currVal = ${currVal}, newVal = ${newVal}`);
-    console.log(`ticker = ${ticker}`)
     user.stockQuantities.set(ticker, newVal);
     user.save();
     const newData = await refreshData(user); 
@@ -159,12 +156,19 @@ app.post(
   authenticateToken,
   jsonParser,
   async (req, res) => {
-    const ticker = req.body.ticker;
-    console.log('Ticker: ', ticker);
-    delete db[ticker];
-    console.log(db);
-    const newData = await refreshData();
-    res.send(newData);
+    const ticker = req.body.ticker,
+      username = req.username,
+      user = await User.findOne({
+        userID: username,
+       });
+    if (!user) {
+      res.json({ status: 'error', error: 'invalid user' });
+    } else {
+      user.stockQuantities.delete(ticker);
+      user.save();
+      const newData = await refreshData(user); 
+      res.send(newData);
+    }
   }
 );
 

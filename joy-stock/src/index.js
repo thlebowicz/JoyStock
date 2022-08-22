@@ -38,11 +38,13 @@ function Wrapper() {
 
   const readData = () => {
     fetch('http://localhost:3000/', {
+      method: 'GET',
       headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json',
         Authorization: 'Bearer ' + authToken,
       },
-    })
-      .then((response) => response.json())
+    }).then((response) => response.json())
       .then((json) => setData(json));
   };
 
@@ -78,7 +80,10 @@ function Wrapper() {
       }),
       cache: 'default',
     })
-      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+        return response.json()
+      })
       .then((json) => setData(json));
   };
 
