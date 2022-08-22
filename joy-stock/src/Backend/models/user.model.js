@@ -12,7 +12,8 @@ const User = mongoose.Schema(
 			required: true,
 		},
 		stockQuantities: {
-			ticker: Number,
+			type: Map,
+			of: Number
 		},
 	},
 	{ collection: 'user-data' }
