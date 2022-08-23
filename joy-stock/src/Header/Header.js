@@ -23,6 +23,10 @@ function Header() {
 
   const navigate = useNavigate();
 
+  const logout = () => {
+    navigate('/');
+  }
+
   return (
     <AppBar component='nav' sx={{backgroundColor: 'black'}}>
       <Toolbar>
@@ -37,6 +41,17 @@ function Header() {
           </ListItem>
           <ListItem button={true} className='nav-button' onClick={() => navigate('/notifications')}>
             Notifications
+          </ListItem>
+          <ListItem 
+            button={true} 
+            className='nav-button' 
+            onClick={() => navigate('/')}
+            sx={{
+              position: 'relative',
+              left: '300%',
+            }}
+          >
+            Logout
           </ListItem>
         </List>
       </Toolbar>
