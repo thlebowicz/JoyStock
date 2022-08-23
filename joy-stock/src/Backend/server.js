@@ -20,10 +20,23 @@ const secret =
 
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 =
-  '/range/1/day/2021-07-22/2021-07-22?adjusted=true&sort=asc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
+  '?adjusted=true&sort=desc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
 
-// Instead of using this dummy DB, save data under User in mongo then draw from user on refresh
-const db = {};
+const fetchTickers = async (tickers) => {
+  const stockPrices = [];
+  const timeStr = '/range/1/day/' + (Date.now() - 604800000) + '/' + Date.now();
+  for (const ticker of tickers) {
+    await fetch(QUERY_1 + ticker + timeStr + QUERY_2)
+      .then((data) => data.json())
+      .then((res) => {
+        const priceFeed = res.results;
+        stockPrices.push(
+          res.results ? [res.ticker, priceFeed[0].vw, priceFeed[1].vw, priceFeed[priceFeed.length - 1].vw] : ['Loading', 0, 0, 0]
+        );
+      });
+  }
+  return stockPrices;
+};
 
 
 const authenticateToken = (req, res, next) => {
@@ -49,20 +62,6 @@ app.get('/', authenticateToken, async (req, res) => {
   res.send(newData);
 });
 
-const fetchTickers = async (tickers) => {
-  const stockPrices = [];
-  for (const ticker of tickers) {
-    await fetch(QUERY_1 + ticker + QUERY_2)
-      .then((data) => data.json())
-      .then((res) => {
-        stockPrices.push(
-          res.results ? [res.ticker, res.results[0].vw] : ['Loading', 0]
-        );
-      });
-  }
-  return stockPrices;
-};
-
 const refreshData = async (user) => {
   if (!user) {
     return null;
@@ -79,10 +78,13 @@ const refreshData = async (user) => {
   const newData = newPrices.map(arr => {
     return {
       ticker: arr[0],
-      price: arr[1],
+      currPrice: arr[1],
+      lastDayPrice: arr[2],
+      lastWeekPrice: arr[3],
       quantity: stockQtys.get(arr[0]),
     }
   });
+  console.log('Data test: ', newData);
   return newData;
 };
 

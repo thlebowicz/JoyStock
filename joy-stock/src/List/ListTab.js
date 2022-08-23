@@ -64,7 +64,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
             left: '5em', 
           }}>
           <Typography variant='h5'>
-              Portfolio value: ${data.length ? round(data.reduce((a,b) => (a + (b.price * b.quantity)), 0)) : 0.00}
+              Portfolio value: ${data.length ? round(data.reduce((a,b) => (a + (b.currPrice * b.quantity)), 0)) : 0.00}
           </Typography>
         </div>
           {data.map(stock => <StockCard stock={stock} deleteTickerFromData={deleteTickerFromData} />)}

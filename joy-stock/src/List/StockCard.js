@@ -19,13 +19,17 @@ function StockCard({stock, deleteTickerFromData}) {
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
 
+  const {ticker, currPrice, lastDayPrice, lastWeekPrice, quantity} = stock;
+
   const handleExpand = () => setExpanded(!expanded);
 
   const round = (num) => {
-    if (parseInt(num)) {
+    if (!isNaN(parseInt(num))) {
       return num.toFixed(2);
     } else return num;
   }
+
+  const dailyGain = round(100 * (currPrice / lastDayPrice - 1));
 
   return (
     <div className='main' style={{marginTop: 20}}>
@@ -43,10 +47,23 @@ function StockCard({stock, deleteTickerFromData}) {
            display: 'flex',
            alignItems: 'center',
         }}>
-          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h6'>{stock.ticker}</Typography>
-          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>${round(stock.price)}</Typography>
-          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>{stock.quantity} shares</Typography>
-          <Typography sx={{marginLeft: 5, flexGrow: 1}} variant='h7'>Total holdings: ${round(stock.quantity * stock.price)}</Typography>
+          <Typography sx={{marginLeft: 5, width: '9%'}} variant='h6'>{ticker}</Typography>
+          <Typography sx={{marginLeft: 5, width: '7%'}} variant='h7'>${round(currPrice)}</Typography>
+          <Typography sx={{marginLeft: 5, width: '7%'}} variant='h7'>{quantity} shares</Typography>
+          <Typography sx={{marginLeft: 5, width: '15%'}} variant='h7'>Total holdings: ${round(quantity * currPrice)}</Typography>
+          <Typography 
+            sx={{
+                  marginLeft: 5, 
+                  width: '10%', 
+                  color: dailyGain > 0 ? 'green' : 'red',
+                  flexGrow: 1,
+                  textAlign: 'right',
+                  marginRight: '2em',
+            }}
+            variant='h7'
+          >
+              {dailyGain}%</Typography>
+
           <IconButton
             sx={{
               backgroundColor: '#969696',
@@ -83,7 +100,9 @@ function StockCard({stock, deleteTickerFromData}) {
           unmountOnExit
         >
         <CardContent>
-          <h1>Bello were gonna make it! </h1>
+          <h3> Weekly and Daily Gain </h3>
+          Day: {lastDayPrice}
+          Week: {lastWeekPrice}
         </CardContent>
         </Collapse>
       </Card>
