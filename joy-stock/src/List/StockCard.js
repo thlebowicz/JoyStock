@@ -19,7 +19,9 @@ function StockCard({stock, deleteTickerFromData}) {
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
 
-  const {ticker, currPrice, lastDayPrice, lastWeekPrice, quantity} = stock;
+  const {ticker, currPrice, lastDayPrice, marketCap, ebitda, PERatio,
+        WSTargetPrice, EPSEstimate, divYield, opMargin, profitMargin, ROE,
+        quantity } = stock;
 
   const handleExpand = () => setExpanded(!expanded);
 
@@ -50,7 +52,7 @@ function StockCard({stock, deleteTickerFromData}) {
           <Typography sx={{marginLeft: 5, width: '9%'}} variant='h6'>{ticker}</Typography>
           <Typography sx={{marginLeft: 5, width: '7%'}} variant='h7'>${round(currPrice)}</Typography>
           <Typography sx={{marginLeft: 5, width: '7%'}} variant='h7'>{quantity} shares</Typography>
-          <Typography sx={{marginLeft: 5, width: '15%'}} variant='h7'>Total holdings: ${round(quantity * currPrice)}</Typography>
+          <Typography sx={{marginLeft: 5, width: '30%'}} variant='h7'>Total holdings: ${round(quantity * currPrice)}</Typography>
           <Typography 
             sx={{
                   marginLeft: 5, 
@@ -100,9 +102,33 @@ function StockCard({stock, deleteTickerFromData}) {
           unmountOnExit
         >
         <CardContent>
-          <h3> Weekly and Daily Gain </h3>
-          Day: {lastDayPrice}
-          Week: {lastWeekPrice}
+          <h3> Financial Metrics </h3>
+          <table>
+            <tr>
+              <td>Market Cap:</td>
+              <td>${marketCap}</td>
+              <td>EBITDA:</td>
+              <td>${ebitda}</td>
+              <td>PE Ratio:</td>
+              <td>{round(PERatio)}x</td>
+            </tr>
+            <tr>
+              <td>WS Target Price:</td>
+              <td>${WSTargetPrice}</td>
+              <td>EPS Estimate:</td>
+              <td>${EPSEstimate}</td>
+              <td>Dividend Yield:</td>
+              <td>{100 * divYield}%</td>
+            </tr>
+            <tr>
+              <td>Operating Margin:</td>
+              <td>{round(100 * opMargin)}%</td>
+              <td>Profit Margin:</td>
+              <td>{round(100 * profitMargin)}%</td>
+              <td>Return on Equity:</td>
+              <td>{round(100 * ROE)}%</td>
+            </tr>
+          </table>
         </CardContent>
         </Collapse>
       </Card>

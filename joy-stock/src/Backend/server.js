@@ -21,20 +21,29 @@ const secret =
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 =
   '?adjusted=true&sort=desc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
+const FUNDAMENTALS = ['MarketCapitalization', 'EBITDA', 'PERatio', 'WallStreetTargetPrice', 'EPSEstimateNextYear', 
+                      'DividendYield', 'OperatingMarginTTM', 'ProfitMargin', 'ReturnOnEquityTTM'];
 
 const fetchTickers = async (tickers) => {
   const stockPrices = [];
-  const timeStr = '/range/1/day/' + (Date.now() - 604800000) + '/' + Date.now();
+  const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
   for (const ticker of tickers) {
+    let toAdd = [];
     await fetch(QUERY_1 + ticker + timeStr + QUERY_2)
       .then((data) => data.json())
       .then((res) => {
         const priceFeed = res.results;
-        stockPrices.push(
-          res.results ? [res.ticker, priceFeed[0].vw, priceFeed[1].vw, priceFeed[priceFeed.length - 1].vw] : ['Loading', 0, 0, 0]
-        );
+        toAdd = res.results ? [res.ticker, priceFeed[0].vw, priceFeed[1].vw] : ['Loading', 0, 0];
       });
-  }
+    await fetch('https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=demo&filter=Highlights')
+      .then((data) => data.json())
+      .then((res) => {
+        for (const field of FUNDAMENTALS) {
+          toAdd.push(res[field] ? res[field] : 'Loading');
+        }
+      });
+      stockPrices.push(toAdd);
+  };
   return stockPrices;
 };
 
@@ -80,7 +89,15 @@ const refreshData = async (user) => {
       ticker: arr[0],
       currPrice: arr[1],
       lastDayPrice: arr[2],
-      lastWeekPrice: arr[3],
+      marketCap: arr[3],
+      ebitda: arr[4],
+      PERatio: arr[5],
+      WSTargetPrice: arr[6],
+      EPSEstimate: arr[7],
+      divYield: arr[8],
+      opMargin: arr[9],
+      profitMargin: arr[10],
+      ROE: arr[11],
       quantity: stockQtys.get(arr[0]),
     }
   });
