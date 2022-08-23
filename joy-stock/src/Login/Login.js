@@ -61,7 +61,13 @@ function Login({ readData, createToken }) {
         password: event.target.newPass.value,
       }),
       cache: 'default',
-    }).then((response) => console.log('response from sign up', response));
+    }).then(response => response.json())
+      .then(json => {
+        const status = json.status;
+        if (status === 'ok') {
+          alert('New account created!');
+        } else alert('Invalid signup!');
+      });
     onCloseDialog();
   };
 

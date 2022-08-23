@@ -21,6 +21,12 @@ function StockCard({stock, deleteTickerFromData}) {
 
   const handleExpand = () => setExpanded(!expanded);
 
+  const round = (num) => {
+    if (parseInt(num)) {
+      return num.toFixed(2);
+    } else return num;
+  }
+
   return (
     <div className='main' style={{marginTop: 20}}>
       <Card 
@@ -38,9 +44,9 @@ function StockCard({stock, deleteTickerFromData}) {
            alignItems: 'center',
         }}>
           <Typography sx={{marginLeft: 5, width: '10%'}} variant='h6'>{stock.ticker}</Typography>
-          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>${stock.price}</Typography>
+          <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>${round(stock.price)}</Typography>
           <Typography sx={{marginLeft: 5, width: '10%'}} variant='h7'>{stock.quantity} shares</Typography>
-          <Typography sx={{marginLeft: 5, flexGrow: 1}} variant='h7'>Total holdings: ${stock.quantity * stock.price}</Typography>
+          <Typography sx={{marginLeft: 5, flexGrow: 1}} variant='h7'>Total holdings: ${round(stock.quantity * stock.price)}</Typography>
           <IconButton
             sx={{
               backgroundColor: '#969696',
@@ -55,6 +61,7 @@ function StockCard({stock, deleteTickerFromData}) {
           
           <IconButton 
             sx={{
+              marginLeft: '.5em',
               backgroundColor: '#969696',
               '&:hover': {
                 backgroundColor: 'gray',

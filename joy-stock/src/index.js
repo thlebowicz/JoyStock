@@ -31,7 +31,7 @@ function Wrapper() {
   }, []);
 
   const createToken = (tkn) => {
-    if (authToken == tkn) return;
+    if (authToken === tkn) return;
     sessionStorage.setItem('joystockToken', tkn);
     setAuthToken(tkn);    
   };
