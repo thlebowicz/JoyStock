@@ -27,7 +27,7 @@ function Wrapper() {
     const token = sessionStorage.getItem('joystockToken');
     if (token) {
       setAuthToken(token);
-    }
+    } else setAuthToken(null);
   }, []);
 
   const createToken = (tkn) => {

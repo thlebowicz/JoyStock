@@ -24,6 +24,7 @@ function Header() {
   const navigate = useNavigate();
 
   const logout = () => {
+    sessionStorage.removeItem('joystockToken');  
     navigate('/');
   }
 
@@ -45,7 +46,7 @@ function Header() {
           <ListItem 
             button={true} 
             className='nav-button' 
-            onClick={() => navigate('/')}
+            onClick={logout}
             sx={{
               position: 'relative',
               left: '300%',
