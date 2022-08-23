@@ -38,10 +38,10 @@ function Login({ readData, createToken }) {
         const token = json.token;
         if (token) {
           createToken(token);
-          readData();
           navigate('/list');
-        } else alert('Invalid login!');
-      });
+        } else alert('Invalid login!')
+      })
+      .then(() => readData());
   };
 
   const openSignup = () => {
