@@ -38,10 +38,10 @@ const fetchTickers = async (tickers) => {
       for (let i = 0; i < dataArray.length; i += 2) {
         const priceRes = dataArray[i];
         const priceFeed = priceRes.results;
-        const stockDataToAdd = priceFeed ? [priceRes.ticker, priceFeed[0].vw, priceFeed[1].vw] : ['Loading', 0, 0];
+        const stockDataToAdd = priceFeed ? [priceRes.ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
         const fundamentalFeed = dataArray[i + 1];
         for (const field of FUNDAMENTALS) {
-          stockDataToAdd.push(fundamentalFeed[field] ? fundamentalFeed[field] : 'Loading');
+          stockDataToAdd.push(fundamentalFeed[field] ? fundamentalFeed[field] : 'API Limit Reached');
         }
         stockPrices.push(stockDataToAdd);
       }

@@ -118,7 +118,7 @@ function StockCard({stock, deleteTickerFromData}) {
               <td>EPS Estimate:</td>
               <td>${EPSEstimate}</td>
               <td>Dividend Yield:</td>
-              <td>{100 * divYield}%</td>
+              <td>{round(100 * divYield)}%</td>
             </tr>
             <tr>
               <td>Operating Margin:</td>
