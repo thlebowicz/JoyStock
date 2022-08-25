@@ -27,26 +27,28 @@ const FUNDAMENTALS = ['MarketCapitalization', 'EBITDA', 'PERatio', 'WallStreetTa
 const fetchTickers = async (tickers) => {
   const stockPrices = [];
   const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
+  const allFetches = [];
   for (const ticker of tickers) {
-    let toAdd = [];
-    await fetch(QUERY_1 + ticker + timeStr + QUERY_2)
-      .then((data) => data.json())
-      .then((res) => {
-        const priceFeed = res.results;
-        toAdd = res.results ? [res.ticker, priceFeed[0].vw, priceFeed[1].vw] : ['Loading', 0, 0];
-      });
-    await fetch('https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=demo&filter=Highlights')
-      .then((data) => data.json())
-      .then((res) => {
+    allFetches.push(fetch(QUERY_1 + ticker + timeStr + QUERY_2).then((data) => data.json()), 
+      fetch('https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=demo&filter=Highlights')
+      .then((data) => data.json()));
+  }
+  await Promise.all(allFetches).then(
+    dataArray => {
+      for (let i = 0; i < dataArray.length; i += 2) {
+        const priceRes = dataArray[i];
+        const priceFeed = priceRes.results;
+        const stockDataToAdd = priceFeed ? [priceRes.ticker, priceFeed[0].vw, priceFeed[1].vw] : ['Loading', 0, 0];
+        const fundamentalFeed = dataArray[i + 1];
         for (const field of FUNDAMENTALS) {
-          toAdd.push(res[field] ? res[field] : 'Loading');
+          stockDataToAdd.push(fundamentalFeed[field] ? fundamentalFeed[field] : 'Loading');
         }
-      });
-      stockPrices.push(toAdd);
-  };
+        stockPrices.push(stockDataToAdd);
+      }
+    }
+  );
   return stockPrices;
-};
-
+}
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
