@@ -10,14 +10,26 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Header from '../Header/Header.js';
 import StockCard from './StockCard.js';
 import './ListTab.css';
+import Dialog from '@mui/material/Dialog';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import DialogContentText from '@mui/material/DialogContentText';
+import InputLabel from '@mui/material/InputLabel';
 
 function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
 
   const [tickerToAdd, setTickerToAdd] = useState('');
   const [quantityToAdd, setQuantityToAdd] = useState(0);
+  const [notifToggle, setNotifToggle] = useState('');
 
   const handleClick = async (e) => {
     await addTickerToData(tickerToAdd, quantityToAdd);
+  }
+
+  const handleNotification = (e) => {
+    e.preventDefault();
+    alert(notifToggle);
+    setNotifToggle('');
   }
 
   const round = (num) => {
@@ -67,8 +79,73 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
               Portfolio value: ${data.length ? round(data.reduce((a,b) => (a + (b.currPrice * b.quantity)), 0)) : 0.00}
           </Typography>
         </div>
-          {data.map(stock => <StockCard stock={stock} deleteTickerFromData={deleteTickerFromData} />)}
+          {data.map(stock => <StockCard 
+            stock={stock} 
+            deleteTickerFromData={deleteTickerFromData} 
+            setNotifToggle={setNotifToggle}
+          />)}
         </Container>
+
+        <Dialog open={notifToggle} onClose={() => setNotifToggle('')} sx={{}}>
+          <Box
+            component="form"
+            onSubmit={handleNotification}
+            sx={{
+              padding: '3em',
+              borderRadius: '4em',
+              width: '80%',
+            }}
+          >
+            <Typography
+              variant="h4"
+              sx={{ userSelect: 'none', textAlign: 'center' }}
+            >
+              Set Notification for {notifToggle}
+            </Typography>
+            <DialogContentText sx={{ textAlign: 'center', userSelect: 'none' }}>
+              Select price and condition below
+            </DialogContentText>
+            <div style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+            }}>
+            <TextField
+              margin="normal"
+              id="notif-price"
+              label="Price"
+              autoFocus
+            />
+            <InputLabel id="condition-label">Condition</InputLabel>
+            <Select  
+              sx={{
+                marginTop: '.5em',
+                marginLeft: '2em',
+                flexGrow: '1',
+              }}    
+              margin="normal"
+              autoFocus
+              required
+              id="notif-condition"
+              label='Condition'
+              labelId='condition-label'
+            >
+            <MenuItem value={'<='}>Less than</MenuItem>
+            <MenuItem value={'>='}>Greater than</MenuItem>
+            <MenuItem value={'10%+'}>Up 10% daily</MenuItem>
+            <MenuItem value={'10%-'}>Down 10% daily</MenuItem> 
+          </Select>
+          </div>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2, mb: 2 }}
+            >
+              Submit
+            </Button>
+          </Box>
+        </Dialog>
       </div>
      </body>
   )

@@ -9,12 +9,12 @@ import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import './StockCard.css';
-import { ExpandMore, Clear } from '@mui/icons-material';
+import { ExpandMore, Clear, Email } from '@mui/icons-material';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CardContent from '@mui/material/CardContent';
 
-function StockCard({stock, deleteTickerFromData}) {
+function StockCard({ stock, deleteTickerFromData, setNotifToggle }) {
 
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
@@ -78,6 +78,19 @@ function StockCard({stock, deleteTickerFromData}) {
             <Clear />
           </IconButton>
           
+          <IconButton
+            sx={{
+              marginLeft: '.5em',
+              backgroundColor: '#969696',
+              '&:hover': {
+                backgroundColor: 'gray',
+              },
+            }}
+            onClick={() => setNotifToggle(ticker)}
+          >
+            <Email />
+          </IconButton>
+
           <IconButton 
             sx={{
               marginLeft: '.5em',
