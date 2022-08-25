@@ -8,6 +8,7 @@ const port = 3000;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
+const LRU = require('lru-cache');
 
 app.use(cors());
 app.use(express.json());
@@ -24,30 +25,48 @@ const QUERY_2 =
 const FUNDAMENTALS = ['MarketCapitalization', 'EBITDA', 'PERatio', 'WallStreetTargetPrice', 'EPSEstimateNextYear', 
                       'DividendYield', 'OperatingMarginTTM', 'ProfitMargin', 'ReturnOnEquityTTM'];
 
+const options = {
+  max: 500,
+  ttl: 1000 * 60 * 24,
+}
+
+const cache = new LRU(options);
+
 const fetchTickers = async (tickers) => {
   const stockPrices = [];
-  const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
-  const allFetches = [];
-  for (const ticker of tickers) {
-    allFetches.push(fetch(QUERY_1 + ticker + timeStr + QUERY_2).then((data) => data.json()), 
-      fetch('https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=demo&filter=Highlights')
-      .then((data) => data.json()));
-  }
-  await Promise.all(allFetches).then(
-    dataArray => {
-      for (let i = 0; i < dataArray.length; i += 2) {
-        const priceRes = dataArray[i];
-        const priceFeed = priceRes.results;
-        const stockDataToAdd = priceFeed ? [priceRes.ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
-        const fundamentalFeed = dataArray[i + 1];
-        for (const field of FUNDAMENTALS) {
-          stockDataToAdd.push(fundamentalFeed[field] ? fundamentalFeed[field] : 'API Limit Reached');
-        }
-        stockPrices.push(stockDataToAdd);
+  
+  const tickerData = await Promise.all(tickers.map(fetchTicker));
+  tickerData.forEach((tickerObj) => {
+      const { ticker, priceData, historicalData } = tickerObj;
+      const priceFeed = priceData.results;
+      const stockDataToSend = priceFeed ? [ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
+      for (const field of FUNDAMENTALS) {
+        stockDataToSend.push(historicalData[field] ? historicalData[field] : 'API Limit Reached');
       }
-    }
-  );
+      stockPrices.push(stockDataToSend);
+  });
+  
   return stockPrices;
+} 
+
+const fetchTicker = async (ticker) => {
+   const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
+   if (cache.get(ticker)) {
+    return cache.get(ticker);
+   } else {
+    const priceDataPromise = fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json()); 
+    const historicalDataPromise = fetch('https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=demo&filter=Highlights')
+                                    .then(data => data.json());
+    const [priceData, historicalData] = await Promise.all([priceDataPromise, historicalDataPromise]);
+    console.log('priceData: ', priceData);
+    const tickerData = {
+      ticker,
+      priceData: priceData,
+      historicalData: historicalData,
+    };
+    cache.set(ticker, tickerData)
+    return tickerData;
+  }
 }
 
 const authenticateToken = (req, res, next) => {
@@ -82,10 +101,6 @@ const refreshData = async (user) => {
   const tickers = [...user.stockQuantities.keys()];
   const newPrices = await fetchTickers(tickers);
 
-  // for (const [ticker, qty] of stockQtys) {
-  //   console.log(ticker, qty);
-  // }
-
   const newData = newPrices.map(arr => {
     return {
       ticker: arr[0],
@@ -103,7 +118,6 @@ const refreshData = async (user) => {
       quantity: stockQtys.get(arr[0]),
     }
   });
-  console.log('Data test: ', newData);
   return newData;
 };
 
