@@ -41,13 +41,12 @@ function Login({ readData }) {
       .then((json, err) => {
         const token = json.token;
         if (token) {
-          context.setUsername(username);
           context.setAuthToken(token);
+          context.setUsername(username);
           sessionStorage.setItem("joystockToken", token);
           navigate('/list');
         } else alert('Invalid login!');
       })
-      .then(() => readData());
   };
 
   const openSignup = () => {

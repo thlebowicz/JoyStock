@@ -30,6 +30,14 @@ function NotificationTab() {
       .then((json) => setNotifications(json));
   };
 
+  useEffect(() => {
+    const readNotifOnLoad = async () => {
+      await readNotifications();
+    };
+    readNotifOnLoad();
+  }, []);
+  
+
   const deleteNotification = (notifID) => {
     fetch('http://localhost:3000/delete-notification', {
       method: 'POST',
