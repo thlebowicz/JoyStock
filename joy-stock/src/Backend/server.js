@@ -46,7 +46,9 @@ const fetchTickers = async (tickers) => {
       const stockDataToSend = priceFeed ? [ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
       for (const statement in FUNDAMENTALS) {
         for (const field of FUNDAMENTALS[statement]) {
-          stockDataToSend.push(historicalData[statement][field] ? historicalData[statement][field].value : 'API Limit Reached');
+          console.log(historicalData);
+          const data = historicalData?.[statement]?.[field]?.value;
+          stockDataToSend.push(data ? data : 'API Limit Reached');
         }
       }
       stockPrices.push(stockDataToSend);
@@ -63,7 +65,7 @@ const fetchTicker = async (ticker) => {
     const priceDataPromise = fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json()); 
     const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY')
                                     .then(data => data.json())
-                                    .then(json => json ? json.results[0].financials : {});
+                                    .then(json => json && json.results && json.results[0] ? json.results[0].financials : null);
     const [priceData, historicalData] = await Promise.all([priceDataPromise, historicalDataPromise]);
     console.log('Historical data: ', historicalData);
     const tickerData = {
