@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/user.model');
+const Notification = require('./models/notification.model');
 const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
@@ -218,10 +219,25 @@ app.post(
 
 app.post('/notification', authenticateToken, jsonParser, async (req, res) => {
   const notifPrice = req.body.notifPrice, 
-    notifCondition = req.body.notifCondition;
-  console.log(notifPrice, notifCondition);
-  res.send('ok');
-});
+    notifCondition = req.body.notifCondition, 
+    notifTicker = req.body.notifTicker, 
+    notifUser = req.username;
+  
+    try {
+      await Notification.create({
+        ticker: notifTicker,
+        userID: notifUser,
+        price: notifPrice,
+        condition: notifCondition,
+      });
+      res.json({ status: 'ok' });
+    } catch (err) {
+      res.json({
+        status: 'error',
+        error: 'error',
+      });
+    }
+  });
 
 app.listen(port, () => {
   console.log(`Test app listening on port ${port}`);
