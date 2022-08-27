@@ -14,7 +14,7 @@ import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CardContent from '@mui/material/CardContent';
 
-function StockCard({ stock, deleteTickerFromData, setNotifToggle }) {
+function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle }) {
 
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
@@ -104,7 +104,10 @@ function StockCard({ stock, deleteTickerFromData, setNotifToggle }) {
                 backgroundColor: 'gray',
               },
             }}
-            onClick={() => setNotifToggle(ticker)}
+            onClick={() => {
+              setNotifTicker(ticker); 
+              setNotifToggle(true);
+            }}
           >
             <Email />
           </IconButton>

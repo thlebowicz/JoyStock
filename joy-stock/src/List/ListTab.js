@@ -21,6 +21,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
   const [tickerToAdd, setTickerToAdd] = useState('');
   const [quantityToAdd, setQuantityToAdd] = useState(0);
   const [notifToggle, setNotifToggle] = useState('');
+  const [notifTicker, setNotifTicker] = useState('');
 
   const handleClick = async (e) => {
     await addTickerToData(tickerToAdd, quantityToAdd);
@@ -28,8 +29,10 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
 
   const handleNotification = (e) => {
     e.preventDefault();
-    alert(notifToggle);
-    setNotifToggle('');
+    console.log(e.target.notifPrice.value, e.target.notifCondition.value);
+    // Insert server request
+    setNotifToggle(false);
+    setNotifTicker('');
   }
 
   const round = (num) => {
@@ -83,6 +86,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
             stock={stock} 
             deleteTickerFromData={deleteTickerFromData} 
             setNotifToggle={setNotifToggle}
+            setNotifTicker={setNotifTicker}
           />)}
         </Container>
 
@@ -100,7 +104,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
               variant="h4"
               sx={{ userSelect: 'none', textAlign: 'center' }}
             >
-              Set Notification for {notifToggle}
+              Set Notification for {notifTicker}
             </Typography>
             <DialogContentText sx={{ textAlign: 'center', userSelect: 'none' }}>
               Select price and condition below
@@ -112,7 +116,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
             }}>
             <TextField
               margin="normal"
-              id="notif-price"
+              name="notifPrice"
               label="Price"
               autoFocus
             />
@@ -126,14 +130,12 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
               margin="normal"
               autoFocus
               required
-              id="notif-condition"
+              name="notifCondition"
               label='Condition'
               labelId='condition-label'
             >
             <MenuItem value={'<='}>Less than</MenuItem>
             <MenuItem value={'>='}>Greater than</MenuItem>
-            <MenuItem value={'10%+'}>Up 10% daily</MenuItem>
-            <MenuItem value={'10%-'}>Down 10% daily</MenuItem> 
           </Select>
           </div>
             <Button

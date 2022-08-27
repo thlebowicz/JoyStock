@@ -216,6 +216,13 @@ app.post(
   }
 );
 
+app.post('/notification', authenticateToken, jsonParser, async (req, res) => {
+  const notifPrice = req.body.notifPrice, 
+    notifCondition = req.body.notifCondition;
+  console.log(notifPrice, notifCondition);
+  res.send('ok');
+});
+
 app.listen(port, () => {
   console.log(`Test app listening on port ${port}`);
 });
