@@ -24,6 +24,6 @@ const Notification = mongoose.Schema(
 	{ collection: 'notification-data' }
 );
 
-const model = mongoose.model('NotifcationModel', Notification);
+const model = mongoose.model('NotificationData', Notification);
 
 module.exports = model;
