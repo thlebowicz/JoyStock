@@ -60,7 +60,6 @@ function NotificationTab() {
 
   return (
     <body>
-      <Header />
       <Container maxWidth="lg">
         <div style={{ marginTop: 100 }}>
           <Container

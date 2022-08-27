@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ContextProvider, Context } from './Context/Context.js';
+import Header from './Header/Header.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -25,21 +26,24 @@ function ContextWrapper() {
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <ContextProvider>
-          <Wrapper />
+          <RouteWrapper />
         </ContextProvider>
       </BrowserRouter>
     </ThemeProvider>
   );
 }
 
-function Wrapper() {
+function RouteWrapper() {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/list" element={<ListTab />} />
-      <Route path="/graph" element={<GraphTab />} />
-      <Route path="/notifications" element={<NotificationTab />} />
-    </Routes>
+    <div>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/list" element={<ListTab />} />
+        <Route path="/graph" element={<GraphTab />} />
+        <Route path="/notifications" element={<NotificationTab />} />
+      </Routes>
+    </div>
   );
 }
 

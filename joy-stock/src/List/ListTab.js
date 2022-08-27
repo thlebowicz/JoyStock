@@ -121,7 +121,6 @@ function ListTab() {
 
   return (
     <body>
-      <Header />
       <div style={{ marginTop: 100 }}>
         <Container maxWidth="lg">
           <div
