@@ -8,6 +8,7 @@ import NotificationTab from './Notifications/NotificationTab.js';
 import reportWebVitals from './reportWebVitals';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ContextProvider } from './Context/Context.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -92,27 +93,29 @@ function Wrapper() {
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Login readData={readData} createToken={createToken} />
-            }
-          />
-          <Route
-            path="/list"
-            element={
-              <ListTab
-                data={data}
-                addTickerToData={addTickerToData}
-                deleteTickerFromData={deleteTickerFromData}
-                readData={readData}
-              />
-            }
-          />
-          <Route path="/graph" element={<GraphTab />} />
-          <Route path="/notifications" element={<NotificationTab />} />
-        </Routes>
+        <ContextProvider>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Login readData={readData} createToken={createToken} />
+              }
+            />
+            <Route
+              path="/list"
+              element={
+                <ListTab
+                  data={data}
+                  addTickerToData={addTickerToData}
+                  deleteTickerFromData={deleteTickerFromData}
+                  readData={readData}
+                />
+              }
+            />
+            <Route path="/graph" element={<GraphTab />} />
+            <Route path="/notifications" element={<NotificationTab />} />
+          </Routes>
+        </ContextProvider>  
       </BrowserRouter>
     </ThemeProvider>
   );
