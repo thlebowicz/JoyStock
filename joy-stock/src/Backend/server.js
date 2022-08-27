@@ -262,7 +262,7 @@ app.post('/notification', authenticateToken, jsonParser, async (req, res) => {
     notifCondition = req.body.notifCondition, 
     notifTicker = req.body.notifTicker, 
     notifUser = req.username;
-  
+
     try {
       await Notification.create({
         ticker: notifTicker,

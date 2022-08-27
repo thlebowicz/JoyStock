@@ -32,8 +32,6 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
 
   const handleNotification = (e) => {
     e.preventDefault();
-    console.log("NOTIF DATA");
-    console.log(e.target.notifPrice.value, e.target.notifCondition.value);
     const price = e.target.notifPrice.value;
     const condition = e.target.notifCondition.value;
     setNotifToggle(false);
@@ -46,6 +44,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
         Authorization: "Bearer " + authToken,
       },
       body: JSON.stringify({
+        notifTicker: notifTicker,
         notifPrice: price,
         notifCondition: condition,
         notifUser: context.username,
