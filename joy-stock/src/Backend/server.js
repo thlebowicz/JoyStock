@@ -22,8 +22,12 @@ const secret =
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 =
   '?adjusted=true&sort=desc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
-const FUNDAMENTALS = ['MarketCapitalization', 'EBITDA', 'PERatio', 'WallStreetTargetPrice', 'EPSEstimateNextYear', 
-                      'DividendYield', 'OperatingMarginTTM', 'ProfitMargin', 'ReturnOnEquityTTM'];
+const FUNDAMENTALS = {
+  income_statement: ['revenues', 'net_income_loss', 'basic_earnings_per_share'], 
+  balance_sheet: ['assets', 'equity', 'liabilities'],
+  cash_flow_statement: ['net_cash_flow_from_operating_activities', 'net_cash_flow_from_investing_activities', 
+    'net_cash_flow_from_financing_activities_continuing'],
+};
 
 const options = {
   max: 500,
@@ -40,8 +44,10 @@ const fetchTickers = async (tickers) => {
       const { ticker, priceData, historicalData } = tickerObj;
       const priceFeed = priceData.results;
       const stockDataToSend = priceFeed ? [ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
-      for (const field of FUNDAMENTALS) {
-        stockDataToSend.push(historicalData[field] ? historicalData[field] : 'API Limit Reached');
+      for (const statement in FUNDAMENTALS) {
+        for (const field of FUNDAMENTALS[statement]) {
+          stockDataToSend.push(historicalData[statement][field] ? historicalData[statement][field].value : 'API Limit Reached');
+        }
       }
       stockPrices.push(stockDataToSend);
   });
@@ -55,10 +61,11 @@ const fetchTicker = async (ticker) => {
     return cache.get(ticker);
    } else {
     const priceDataPromise = fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json()); 
-    const historicalDataPromise = fetch('https://eodhistoricaldata.com/api/fundamentals/AAPL.US?api_token=demo&filter=Highlights')
-                                    .then(data => data.json());
+    const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY')
+                                    .then(data => data.json())
+                                    .then(json => json ? json.results[0].financials : {});
     const [priceData, historicalData] = await Promise.all([priceDataPromise, historicalDataPromise]);
-    console.log('priceData: ', priceData);
+    console.log('Historical data: ', historicalData);
     const tickerData = {
       ticker,
       priceData: priceData,
@@ -106,15 +113,15 @@ const refreshData = async (user) => {
       ticker: arr[0],
       currPrice: arr[1],
       lastDayPrice: arr[2],
-      marketCap: arr[3],
-      ebitda: arr[4],
-      PERatio: arr[5],
-      WSTargetPrice: arr[6],
-      EPSEstimate: arr[7],
-      divYield: arr[8],
-      opMargin: arr[9],
-      profitMargin: arr[10],
-      ROE: arr[11],
+      revenue: arr[3],
+      netIncome: arr[4],
+      basicEPS: arr[5],
+      assets: arr[6],
+      equity: arr[7],
+      liabilities: arr[8],
+      cfo: arr[9],
+      cfi: arr[10],
+      cff: arr[11],
       quantity: stockQtys.get(arr[0]),
     }
   });

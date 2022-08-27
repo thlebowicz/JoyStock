@@ -19,9 +19,8 @@ function StockCard({ stock, deleteTickerFromData, setNotifToggle }) {
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
 
-  const {ticker, currPrice, lastDayPrice, marketCap, ebitda, PERatio,
-        WSTargetPrice, EPSEstimate, divYield, opMargin, profitMargin, ROE,
-        quantity } = stock;
+  const {ticker, currPrice, lastDayPrice, revenue, netIncome, basicEPS, assets, equity, liabilities, 
+    cfo, cfi, cff, quantity } = stock;
 
   const handleExpand = () => setExpanded(!expanded);
 
@@ -29,6 +28,25 @@ function StockCard({ stock, deleteTickerFromData, setNotifToggle }) {
     if (!isNaN(parseInt(num))) {
       return num.toFixed(2);
     } else return num;
+  }
+
+  const addCommas = (num) => {
+    if (num === 'API Limit Reached') {
+      return num;
+    }
+    const str = String(num); 
+    if (str.length <= 3) {
+      return str;
+    } else {
+      let ans = str.slice(str.length - 3);
+      for (let i = str.length - 3; i >= 0; i -= 3) {
+        ans = str.slice(i - 3, i) + ',' + ans;
+        if (i <= 2) {
+          ans = str.slice(0, i) + ans;
+        }
+      }
+      return ans[0] === ',' ? ans.slice(1) : ans;
+    }
   }
 
   const dailyGain = round(100 * (currPrice / lastDayPrice - 1));
@@ -118,28 +136,28 @@ function StockCard({ stock, deleteTickerFromData, setNotifToggle }) {
           <h3> Financial Metrics </h3>
           <table>
             <tr>
-              <td>Market Cap:</td>
-              <td>${marketCap}</td>
-              <td>EBITDA:</td>
-              <td>${ebitda}</td>
-              <td>PE Ratio:</td>
-              <td>{round(PERatio)}x</td>
+              <td>Revenue:</td>
+              <td>${addCommas(revenue)}</td>
+              <td>Assets:</td>
+              <td>${addCommas(assets)}</td>
+              <td>Operating Cash Flow:</td>
+              <td>${addCommas(cfo)}</td>
             </tr>
             <tr>
-              <td>WS Target Price:</td>
-              <td>${WSTargetPrice}</td>
-              <td>EPS Estimate:</td>
-              <td>${EPSEstimate}</td>
-              <td>Dividend Yield:</td>
-              <td>{round(100 * divYield)}%</td>
+              <td>Net Income:</td>
+              <td>${addCommas(netIncome)}</td>
+              <td>Equity:</td>
+              <td>${addCommas(equity)}</td>
+              <td>Investing Cash Flow</td>
+              <td>${addCommas(cfi)}</td>
             </tr>
             <tr>
-              <td>Operating Margin:</td>
-              <td>{round(100 * opMargin)}%</td>
-              <td>Profit Margin:</td>
-              <td>{round(100 * profitMargin)}%</td>
-              <td>Return on Equity:</td>
-              <td>{round(100 * ROE)}%</td>
+              <td>Basic EPS</td>
+              <td>${basicEPS}</td>
+              <td>Liabilities:</td>
+              <td>${addCommas(liabilities)}</td>
+              <td>Financing Cash Flow:</td>
+              <td>${addCommas(cff)}</td>
             </tr>
           </table>
         </CardContent>
