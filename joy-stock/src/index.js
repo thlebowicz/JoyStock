@@ -114,7 +114,10 @@ function Wrapper() {
       cache: 'default',
     })
       .then((response) => response.json())
-      .then((json) => setNotifications(json));
+      .then((json) => {
+        setNotifications(json);
+        console.log('New notifs: ', notifications);
+      });
   }
 
   const updateQuantity = (ticker, newQuantity) => {};

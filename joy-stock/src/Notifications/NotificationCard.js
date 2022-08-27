@@ -25,8 +25,8 @@ function NotificationCard({ notification, deleteNotification }) {
     padding: 2,
     userSelect: 'none',
   }}  
-  >{notification.price}
-  <button onClick={() => deleteNotification(1)}>Delete</button></Card>);
+  >{notification.notifID}
+  <button onClick={() => deleteNotification(notification.notifID)}>Delete</button></Card>);
 }
 
 export default NotificationCard;
