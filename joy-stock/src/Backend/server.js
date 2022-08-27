@@ -37,13 +37,36 @@ const options = {
 
 const cache = new LRU(options);
 
-const sendNotifications = async (stock, price) => {
-  const greaterThan = await Notification.find({ticker: stock, condition: "gt", price: { $lte: price }});
-  const lessThan = await Notification.find({ticker: stock, condition: "lt", price: { $gte: price }});
-  const notifsToSend = [...greaterThan, ...lessThan];
-  notifsToSend.forEach((notif) => {
-    console.log(notif);
-  })
+const fetchTickerPrice = (ticker) => {
+  if (cache.get(ticker)) {
+    return cache.get(ticker)[0];
+  } else {
+    const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
+    return fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json())
+    .then(json => json?.results[0]?.vw);
+  }
+}
+
+const sendAllNotifications = async () => {
+  const allStocks = await Notification.distinct("ticker"); 
+  await Promise.all(allStocks.map(async (stock) => {
+    const stockPrice = await fetchTickerPrice(stock);
+    sendNotificationsForStock(stock, stockPrice);
+  }));
+}
+
+// Notification worker
+setInterval(sendAllNotifications, 1000 * 60 * 60); 
+
+const sendNotificationsForStock = async (stock, price) => {
+  if (price) {
+    const greaterThan = await Notification.find({ticker: stock, condition: "gt", price: { $lte: price }});
+    const lessThan = await Notification.find({ticker: stock, condition: "lt", price: { $gte: price }});
+    const notifsToSend = [...greaterThan, ...lessThan];
+    notifsToSend.forEach((notif) => {
+      console.log('Notif: ', notif);
+    })
+  }
 }
 
 const fetchTickers = async (tickers) => {
@@ -52,40 +75,43 @@ const fetchTickers = async (tickers) => {
   const tickerData = await Promise.all(tickers.map(fetchTicker));
   tickerData.forEach((tickerObj) => {
       const { ticker, priceData, historicalData } = tickerObj;
+      console.log(ticker, ' ', historicalData);
       const priceFeed = priceData.results;
       const stockDataToSend = priceFeed ? [ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
       for (const statement in FUNDAMENTALS) {
         for (const field of FUNDAMENTALS[statement]) {
-          console.log(historicalData);
           const data = historicalData?.[statement]?.[field]?.value;
-          stockDataToSend.push(data ? data : 'API Limit Reached');
+          stockDataToSend.push(data ? data : 'No data available');
         }
       }
       stockPrices.push(stockDataToSend);
   });
-  
   return stockPrices;
 } 
 
 const fetchTicker = async (ticker) => {
+
    const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
+   let ret;
    if (cache.get(ticker)) {
-    return cache.get(ticker);
+    ret = cache.get(ticker);
    } else {
     const priceDataPromise = fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json()); 
-    const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY')
+   
+    const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=9YzCTVZEnMUGgKfV6XK1CNQwKqPPeOK2')
                                     .then(data => data.json())
                                     .then(json => json && json.results && json.results[0] ? json.results[0].financials : null);
     const [priceData, historicalData] = await Promise.all([priceDataPromise, historicalDataPromise]);
-    console.log('Historical data: ', historicalData);
     const tickerData = {
       ticker,
       priceData: priceData,
       historicalData: historicalData,
     };
     cache.set(ticker, tickerData)
-    return tickerData;
+    ret = tickerData;
   }
+  sendNotificationsForStock(ret.ticker, ret?.priceData?.results[0]?.vw);
+  return ret;
 }
 
 const authenticateToken = (req, res, next) => {

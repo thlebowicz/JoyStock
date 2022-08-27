@@ -31,7 +31,7 @@ function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle
   }
 
   const addCommas = (num) => {
-    if (num === 'API Limit Reached') {
+    if (num === 'No data available') {
       return num;
     }
     const str = String(num); 
