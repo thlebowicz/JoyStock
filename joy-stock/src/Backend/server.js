@@ -11,6 +11,9 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const LRU = require('lru-cache');
 
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
 app.use(cors());
 app.use(express.json());
 
@@ -64,7 +67,20 @@ const sendNotificationsForStock = async (stock, price) => {
     const lessThan = await Notification.find({ticker: stock, condition: "lt", price: { $gte: price }});
     const notifsToSend = [...greaterThan, ...lessThan];
     notifsToSend.forEach((notif) => {
-      console.log('Notif: ', notif);
+      const msg = {
+        to: notif.userID, // Change to your recipient
+        from: 'joystock.portfolio.official@gmail.com', // Change to your verified sender
+        subject: 'Notification Triggered',
+        text: 'Your notification was triggered!',
+      }
+      sgMail
+        .send(msg)
+        .then(() => {
+          console.log('Email sent')
+        })
+        .catch((error) => {
+          console.error(error)
+        });
     })
   }
 }
