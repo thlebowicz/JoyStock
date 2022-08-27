@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -14,7 +14,7 @@ import './Header.css';
 import {
   useParams,
   useNavigate,
-  useLocation,
+  useLocatio,
 } from "react-router-dom";
 
 
@@ -22,14 +22,35 @@ import {
 function Header() {
 
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+
+  const authToken = sessionStorage.getItem('joystockToken');
 
   const logout = () => {
     sessionStorage.removeItem('joystockToken');  
     navigate('/');
   }
 
+  useEffect(() => {
+    const getUsername = async () => {
+      const resp = await fetch('http://localhost:3000/get-username', {
+        method: 'GET',
+        headers: {
+          Accept: 'application.json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + authToken,
+        },
+      });
+      const json = await resp.json();
+      const name = await json.username;
+      setUsername(name);
+    };
+    getUsername();
+  }, []);
+  
+
   return (
-    <AppBar component='nav' sx={{backgroundColor: 'black'}}>
+    <AppBar component='nav' sx={{ backgroundColor: 'black' }}>
       <Toolbar>
         <List sx={{
           display: 'flex',
@@ -42,6 +63,14 @@ function Header() {
           </ListItem>
           <ListItem button={true} className='nav-button' onClick={() => navigate('/notifications')}>
             Notifications
+          </ListItem>
+          <ListItem
+            sx={{
+              position: 'relative',
+              left: '200%',
+            }}
+          >
+            {username}
           </ListItem>
           <ListItem 
             button={true} 

@@ -30,7 +30,6 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
   const handleNotification = (e) => {
     e.preventDefault();
     console.log(e.target.notifPrice.value, e.target.notifCondition.value);
-    // Insert server request
     setNotifToggle(false);
     setNotifTicker('');
   }
