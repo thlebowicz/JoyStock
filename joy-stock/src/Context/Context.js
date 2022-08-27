@@ -28,8 +28,8 @@ const ContextProvider = ({ children }) => {
 		getUsername();
 	}, []);
 
-	console.log("auth token ", authToken);
-	console.log("username ", username);
+	console.log("auth token in context", authToken);
+	console.log("username in context", username);
 
 	const logout = () => {
 		console.log("Logging out", username);

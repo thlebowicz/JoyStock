@@ -38,6 +38,9 @@ function Wrapper() {
   const context = useContext(Context);
   const authToken = context.authToken;
 
+  console.log('authToken in Wrapper:', authToken);
+  console.log('username in Wrapper:', context.username);
+
   const readData = () => {
     fetch('http://localhost:3000/', {
       method: 'GET',
@@ -89,39 +92,6 @@ function Wrapper() {
       .then((json) => setData(json));
   };
 
-  const readNotifications = () => {
-    fetch('http://localhost:3000/get-notifications', {
-      method: 'GET',
-      headers: {
-        Accept: 'application.json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + authToken,
-      },
-    })
-      .then((response) => response.json())
-      .then((json) => setNotifications(json));
-  };
-
-  const deleteNotification = (notifID) => {
-    fetch('http://localhost:3000/delete-notification', {
-      method: 'POST',
-      headers: {
-        Accept: 'application.json',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + authToken,
-      },
-      body: JSON.stringify({
-        notifID,
-      }),
-      cache: 'default',
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        setNotifications(json);
-        console.log('New notifs: ', notifications);
-      });
-  }
-
   const updateQuantity = (ticker, newQuantity) => {};
 
   return (
@@ -135,21 +105,11 @@ function Wrapper() {
             addTickerToData={addTickerToData}
             deleteTickerFromData={deleteTickerFromData}
             readData={readData}
-            readNotifications={readNotifications}
           />
         }
       />
       <Route path="/graph" element={<GraphTab />} />
-      <Route
-        path="/notifications"
-        element={
-          <NotificationTab
-            notifications={notifications}
-            readNotifications={readNotifications}
-            deleteNotification={deleteNotification}
-          />
-        }
-      />
+      <Route path="/notifications" element={<NotificationTab />} />
     </Routes>
   );
 }

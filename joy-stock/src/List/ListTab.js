@@ -17,7 +17,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import InputLabel from "@mui/material/InputLabel";
 import { Context } from "../Context/Context.js";
 
-function ListTab({ data, addTickerToData, deleteTickerFromData, readData, readNotifications }) {
+function ListTab({ data, addTickerToData, deleteTickerFromData, readData}) {
   const [tickerToAdd, setTickerToAdd] = useState("");
   const [quantityToAdd, setQuantityToAdd] = useState(0);
   const [notifToggle, setNotifToggle] = useState("");
@@ -51,8 +51,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData, readNo
       }),
       cache: "default",
     })
-      .then((response) => response.json())
-      .then(readNotifications);
+      .then((response) => response.json());
   };
 
   const round = (num) => {
