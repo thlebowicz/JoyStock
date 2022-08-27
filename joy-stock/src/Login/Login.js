@@ -43,6 +43,7 @@ function Login({ readData }) {
         if (token) {
           context.setUsername(username);
           context.setAuthToken(token);
+          sessionStorage.setItem("joystockToken", token);
           navigate('/list');
         } else alert('Invalid login!');
       })
