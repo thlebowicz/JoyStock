@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import Login from './Login/Login';
@@ -8,7 +8,7 @@ import NotificationTab from './Notifications/NotificationTab.js';
 import reportWebVitals from './reportWebVitals';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ContextProvider } from './Context/Context.js';
+import { ContextProvider, Context } from './Context/Context.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -16,27 +16,27 @@ const theme = createTheme();
 
 root.render(
   <React.StrictMode>
-    <Wrapper />
+    <ContextWrapper />
   </React.StrictMode>
 );
+
+function ContextWrapper() {
+  return (
+    <ThemeProvider theme={theme}>
+      <BrowserRouter>
+        <ContextProvider>
+          <Wrapper />
+        </ContextProvider>
+      </BrowserRouter>
+    </ThemeProvider>
+  );
+}
 
 function Wrapper() {
   const [data, setData] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [authToken, setAuthToken] = useState(null);
-
-  useEffect(() => {
-    const token = sessionStorage.getItem('joystockToken');
-    if (token) {
-      setAuthToken(token);
-    } else setAuthToken(null);
-  }, []);
-
-  const createToken = (tkn) => {
-    if (authToken === tkn) return;
-    sessionStorage.setItem('joystockToken', tkn);
-    setAuthToken(tkn);    
-  };
+  const context = useContext(Context);
+  const authToken = context.authToken;
 
   const readData = () => {
     fetch('http://localhost:3000/', {
@@ -46,7 +46,8 @@ function Wrapper() {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + authToken,
       },
-    }).then((response) => response.json())
+    })
+      .then((response) => response.json())
       .then((json) => setData(json));
   };
 
@@ -96,9 +97,10 @@ function Wrapper() {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + authToken,
       },
-    }).then((response) => response.json())
+    })
+      .then((response) => response.json())
       .then((json) => setNotifications(json));
-  }
+  };
 
   const deleteNotification = (notifID) => {
     fetch('http://localhost:3000/delete-notification', {
@@ -109,51 +111,43 @@ function Wrapper() {
         Authorization: 'Bearer ' + authToken,
       },
       body: JSON.stringify({
-        notifID
+        notifID,
       }),
       cache: 'default',
     })
       .then((response) => response.json())
       .then((json) => setNotifications(json));
-  }
+  };
 
   const updateQuantity = (ticker, newQuantity) => {};
 
   return (
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <ContextProvider>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <Login readData={readData} createToken={createToken} />
-              }
-            />
-            <Route
-              path="/list"
-              element={
-                <ListTab
-                  data={data}
-                  addTickerToData={addTickerToData}
-                  deleteTickerFromData={deleteTickerFromData}
-                  readData={readData}
-                  readNotifications={readNotifications}
-                />
-              }
-            />
-            <Route path="/graph" element={<GraphTab />} />
-            <Route path="/notifications" element={
-            <NotificationTab
-              notifications={notifications}
-              readNotifications={readNotifications}
-              deleteNotification={deleteNotification}
-             />
-             } />
-          </Routes>
-        </ContextProvider>  
-      </BrowserRouter>
-    </ThemeProvider>
+    <Routes>
+      <Route path="/" element={<Login readData={readData} />} />
+      <Route
+        path="/list"
+        element={
+          <ListTab
+            data={data}
+            addTickerToData={addTickerToData}
+            deleteTickerFromData={deleteTickerFromData}
+            readData={readData}
+            readNotifications={readNotifications}
+          />
+        }
+      />
+      <Route path="/graph" element={<GraphTab />} />
+      <Route
+        path="/notifications"
+        element={
+          <NotificationTab
+            notifications={notifications}
+            readNotifications={readNotifications}
+            deleteNotification={deleteNotification}
+          />
+        }
+      />
+    </Routes>
   );
 }
 

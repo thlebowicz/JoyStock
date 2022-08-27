@@ -11,7 +11,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Context } from '../Context/Context.js';
 
-function Login({ readData, createToken }) {
+function Login({ readData }) {
   const theme = createTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,11 +41,10 @@ function Login({ readData, createToken }) {
       .then((json, err) => {
         const token = json.token;
         if (token) {
-          createToken(token);
           context.setUsername(username);
           context.setAuthToken(token);
           navigate('/list');
-        } else alert('Invalid login!')
+        } else alert('Invalid login!');
       })
       .then(() => readData());
   };
@@ -69,8 +68,9 @@ function Login({ readData, createToken }) {
         password: pass,
       }),
       cache: 'default',
-    }).then(response => response.json())
-      .then(json => {
+    })
+      .then((response) => response.json())
+      .then((json) => {
         const status = json.status;
         if (status === 'ok') {
           alert('New account created!');
