@@ -75,7 +75,6 @@ const fetchTickers = async (tickers) => {
   const tickerData = await Promise.all(tickers.map(fetchTicker));
   tickerData.forEach((tickerObj) => {
       const { ticker, priceData, historicalData } = tickerObj;
-      console.log(ticker, ' ', historicalData);
       const priceFeed = priceData.results;
       const stockDataToSend = priceFeed ? [ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
       for (const statement in FUNDAMENTALS) {
@@ -195,8 +194,8 @@ app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
 app.post('/login', async (req, res) => {
   const username = req.body.username,
     password = req.body.password;
-  console.log('Login API call');
-  console.log(`Username: ${username}, password: ${password}`);
+  // console.log('Login API call');
+  // console.log(`Username: ${username}, password: ${password}`);
 
   const user = await User.findOne({
     userID: username,
@@ -207,7 +206,7 @@ app.post('/login', async (req, res) => {
     res.json({ status: 'error', error: 'Invalid username' });
   } else {
     const isPasswordValid = password === user.password;
-    console.log(`Valid pass? ${isPasswordValid}`);
+    // console.log(`Valid pass? ${isPasswordValid}`);
     if (isPasswordValid) {
       const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
       res.json({ status: 'ok', token: token });
@@ -218,8 +217,8 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/signup', jsonParser, async (req, res) => {
-  console.log('Sign Up API Call');
-  console.log(req.body);
+  // console.log('Sign Up API Call');
+  // console.log(req.body);
   try {
     await User.create({
       userID: req.body.username,
@@ -256,8 +255,12 @@ app.post(
   }
 );
 
+app.get('/get-notifications', authenticateToken, async (req, res) => {
+  const userNotifs = await Notification.find({ userID: req.username });
+  res.send(userNotifs);
+});
 
-app.post('/notification', authenticateToken, jsonParser, async (req, res) => {
+app.post('/add-notification', authenticateToken, jsonParser, async (req, res) => {
   const notifPrice = req.body.notifPrice, 
     notifCondition = req.body.notifCondition, 
     notifTicker = req.body.notifTicker, 

@@ -17,7 +17,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import InputLabel from "@mui/material/InputLabel";
 import { Context } from "../Context/Context.js";
 
-function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
+function ListTab({ data, addTickerToData, deleteTickerFromData, readData, readNotifications }) {
   const [tickerToAdd, setTickerToAdd] = useState("");
   const [quantityToAdd, setQuantityToAdd] = useState(0);
   const [notifToggle, setNotifToggle] = useState("");
@@ -30,13 +30,13 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
     await addTickerToData(tickerToAdd, quantityToAdd);
   };
 
-  const handleNotification = (e) => {
+  const addNotification = (e) => {
     e.preventDefault();
     const price = e.target.notifPrice.value;
     const condition = e.target.notifCondition.value;
     setNotifToggle(false);
     setNotifTicker("");
-    fetch("http://localhost:3000/notification", {
+    fetch("http://localhost:3000/add-notification", {
       method: "POST",
       headers: {
         Accept: "application.json",
@@ -52,7 +52,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
       cache: "default",
     })
       .then((response) => response.json())
-      .then((json) => {});
+      .then(readNotifications);
   };
 
   const round = (num) => {
@@ -130,7 +130,7 @@ function ListTab({ data, addTickerToData, deleteTickerFromData, readData }) {
         <Dialog open={notifToggle} onClose={() => setNotifToggle("")} sx={{}}>
           <Box
             component="form"
-            onSubmit={handleNotification}
+            onSubmit={addNotification}
             sx={{
               padding: "3em",
               borderRadius: "4em",

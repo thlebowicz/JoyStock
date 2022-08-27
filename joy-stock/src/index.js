@@ -22,6 +22,7 @@ root.render(
 
 function Wrapper() {
   const [data, setData] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [authToken, setAuthToken] = useState(null);
 
   useEffect(() => {
@@ -68,7 +69,6 @@ function Wrapper() {
   };
 
   const deleteTickerFromData = (tickerToDelete) => {
-    console.log('meme');
     fetch('http://localhost:3000/delete-stock', {
       method: 'POST',
       headers: {
@@ -83,10 +83,39 @@ function Wrapper() {
     })
       .then((response) => {
         console.log(response);
-        return response.json()
+        return response.json();
       })
       .then((json) => setData(json));
   };
+
+  const readNotifications = () => {
+    fetch('http://localhost:3000/get-notifications', {
+      method: 'GET',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + authToken,
+      },
+    }).then((response) => response.json())
+      .then((json) => setNotifications(json));
+  }
+
+  const deleteNotification = (notifID) => {
+    fetch('http://localhost:3000/delete-notification', {
+      method: 'POST',
+      headers: {
+        Accept: 'application.json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + authToken,
+      },
+      body: JSON.stringify({
+        notifID
+      }),
+      cache: 'default',
+    })
+      .then((response) => response.json())
+      .then((json) => setNotifications(json));
+  }
 
   const updateQuantity = (ticker, newQuantity) => {};
 
@@ -109,11 +138,18 @@ function Wrapper() {
                   addTickerToData={addTickerToData}
                   deleteTickerFromData={deleteTickerFromData}
                   readData={readData}
+                  readNotifications={readNotifications}
                 />
               }
             />
             <Route path="/graph" element={<GraphTab />} />
-            <Route path="/notifications" element={<NotificationTab />} />
+            <Route path="/notifications" element={
+            <NotificationTab
+              notifications={notifications}
+              readNotifications={readNotifications}
+              deleteNotification={deleteNotification}
+             />
+             } />
           </Routes>
         </ContextProvider>  
       </BrowserRouter>
