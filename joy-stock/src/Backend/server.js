@@ -265,9 +265,11 @@ app.post('/add-notification', authenticateToken, jsonParser, async (req, res) =>
     notifCondition = req.body.notifCondition, 
     notifTicker = req.body.notifTicker, 
     notifUser = req.username;
+  const notifID = notifPrice + notifCondition + notifTicker + notifUser;
 
     try {
       await Notification.create({
+        notifID: notifID,
         ticker: notifTicker,
         userID: notifUser,
         price: notifPrice,
@@ -281,6 +283,21 @@ app.post('/add-notification', authenticateToken, jsonParser, async (req, res) =>
       });
     }
   });
+
+app.post('/delete-notification', authenticateToken, jsonParser, async (req, res) => {
+    const notifID = req.body.notifID;
+    const notif = await Notification.findOne({
+        notifID: notifID,
+       });
+    if (!notif) {
+      res.json({ status: 'error', error: 'invalid notification' });
+    } else {
+      await notif.remove();
+      const newNotifs = await Notification.find({ userID: req.username });
+      res.send(newNotifs);
+    }
+  }
+);
 
 app.listen(port, () => {
   console.log(`Test app listening on port ${port}`);

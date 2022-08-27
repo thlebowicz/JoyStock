@@ -17,15 +17,21 @@ function NotificationTab({ notifications, readNotifications, deleteNotification 
   return (
     <body>
       <Header />
+      <Container maxWidth="lg">
       <div style={{marginTop: 100}}>
-        <Container maxWidth='lg'>
-          <button onClick={async () => {
-            await readNotifications();
-
-          }}>Read notifs</button>
-
+        <Container maxWidth='lg' sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: '2em',
+        }}>
+          <Button variant="outlined" onClick={readNotifications}>
+              Refresh
+          </Button>
         </Container>
-        <div>
+        <div style={{
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}>
         {notifications.map((notif) => (
             <NotificationCard
               notification={notif}
@@ -34,6 +40,7 @@ function NotificationTab({ notifications, readNotifications, deleteNotification 
           ))}
         </div>
       </div>
+      </Container>
      </body>
   )
 

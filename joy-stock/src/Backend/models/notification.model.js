@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const Notification = mongoose.Schema(
 	{
+    notifID: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     ticker: {
       type: String,
       required: true,
