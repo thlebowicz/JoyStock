@@ -10,6 +10,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const LRU = require('lru-cache');
+const fs = require('fs');
+
 
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -46,6 +48,17 @@ const MILLISECONDS_PER_INTERVAL = {
   month: MILLISECONDS_IN_DAY * 30,
   hour: MILLISECONDS_IN_DAY / 24,
 }
+
+let allTickers;
+
+fs.readFile('./tickers.txt', 'utf8', (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  } else {
+      allTickers = new Set(data.split(','));
+  }
+});
 
 const options = {
   max: 500,
@@ -237,10 +250,19 @@ const refreshData = async (user) => {
   return newData;
 };
 
+const validateTicker = (tickerStr) => {
+  return allTickers.has(tickerStr);
+}
+
 app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
     quantity = req.body.quantity,
     username = req.username;
+  
+  if (!validateTicker(ticker)) {
+    res.json({ status: 'error', error: 'invalid ticker'});
+    return;
+  }
 
   const user = await User.findOne({
     userID: username,

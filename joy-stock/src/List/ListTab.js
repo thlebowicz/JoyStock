@@ -66,7 +66,10 @@ function ListTab() {
       cache: 'default',
     })
       .then((response) => response.json())
-      .then((json) => setData(json));
+      .then((json) => { 
+        if (json.status !== 'error') setData(json);
+        else alert('Invalid ticker!');
+      });
   };
 
   const deleteTickerFromData = (tickerToDelete) => {
