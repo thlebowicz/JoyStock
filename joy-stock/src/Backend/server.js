@@ -61,14 +61,15 @@ const sendAllNotifications = async () => {
 
 // Notification worker
 setInterval(sendAllNotifications, 1000 * 60 * 60); 
-
+let meme = true;
 const sendNotificationsForStock = async (stock, price) => {
   if (price) {
     const greaterThan = await Notification.find({ticker: stock, condition: ">=", price: { $lte: price }});
     const lessThan = await Notification.find({ticker: stock, condition: "<=", price: { $gte: price }});
     const notifsToSend = [...greaterThan, ...lessThan];
     notifsToSend.forEach((notif) => {
-      if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY) {
+      if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY && meme) {
+        meme = false;
         const msg = {
           to: 'thomas.hlebowicz@gmail.com', // Change to your recipient
           from: 'joystock.portfolio.official@gmail.com', // Change to your verified sender
