@@ -39,6 +39,13 @@ const FUNDAMENTALS = {
   ],
 };
 const MILLISECONDS_IN_DAY = 86400000;
+const MILLISECONDS_PER_INTERVAL = {
+  day: MILLISECONDS_IN_DAY,
+  year: MILLISECONDS_IN_DAY * 365,
+  week: MILLISECONDS_IN_DAY * 7,
+  month: MILLISECONDS_IN_DAY * 30,
+  hour: MILLISECONDS_IN_DAY / 24,
+}
 
 const options = {
   max: 500,
@@ -370,6 +377,30 @@ app.post(
     }
   }
 );
+
+app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) => {
+  const numDatapoints = req.body.numDatapoints, ticker = req.body.ticker, interval = req.body.interval;
+  // Accounting for market holidays
+  const totalQueries = 100;
+  const timeStr =
+      '/range/1/' + interval + '/' + (Date.now() - MILLISECONDS_PER_INTERVAL[interval] * totalQueries) + '/' + Date.now();
+  try {
+    const priceData = await fetch(QUERY_1 + ticker + timeStr + QUERY_2)
+      .then((data) => data.json())
+      .then((json) => json?.results);
+    res.send(priceData.slice(0, numDatapoints));
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+// const interval = 'day';
+// const numDatapoints = 20;
+// const totalQueries = 100 ;
+// fetch(QUERY_1 + 'GOOG' + '/range/1/' + interval + '/' + (Date.now() - MILLISECONDS_PER_INTERVAL[interval] * totalQueries) + '/' + Date.now() + QUERY_2)
+//       .then((data) => data.json())
+//       .then((json) => json?.results)
+//       .then(res => console.log('Data for graph: ', res ? res.slice(0, numDatapoints).length : null));
 
 app.listen(port, () => {
   console.log(`Test app listening on port ${port}`);
