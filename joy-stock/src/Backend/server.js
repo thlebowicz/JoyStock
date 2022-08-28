@@ -32,6 +32,7 @@ const FUNDAMENTALS = {
   cash_flow_statement: ['net_cash_flow_from_operating_activities', 'net_cash_flow_from_investing_activities', 
     'net_cash_flow_from_financing_activities_continuing'],
 };
+const MILLISECONDS_IN_DAY = 86400000;
 
 const options = {
   max: 500,
@@ -63,25 +64,27 @@ setInterval(sendAllNotifications, 1000 * 60 * 60);
 
 const sendNotificationsForStock = async (stock, price) => {
   if (price) {
-    const greaterThan = await Notification.find({ticker: stock, condition: "gt", price: { $lte: price }});
-    const lessThan = await Notification.find({ticker: stock, condition: "lt", price: { $gte: price }});
+    const greaterThan = await Notification.find({ticker: stock, condition: ">=", price: { $lte: price }});
+    const lessThan = await Notification.find({ticker: stock, condition: "<=", price: { $gte: price }});
     const notifsToSend = [...greaterThan, ...lessThan];
     notifsToSend.forEach((notif) => {
-      const msg = {
-        to: notif.userID, // Change to your recipient
-        from: 'joystock.portfolio.official@gmail.com', // Change to your verified sender
-        subject: 'Notification Triggered',
-        text: 'Your notification was triggered!',
-      }
-      sgMail
-        .send(msg)
-        .then(() => {
-          console.log('Email sent')
-        })
-        .catch((error) => {
-          console.error(error)
-        });
-    })
+      if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY) {
+        const msg = {
+          to: 'thomas.hlebowicz@gmail.com', // Change to your recipient
+          from: 'joystock.portfolio.official@gmail.com', // Change to your verified sender
+          subject: 'Notification Triggered',
+          text: 'Your notification was triggered!',
+        }
+        sgMail
+          .send(msg)
+          .then(() => {
+            console.log('Email sent')
+          })
+          .catch((error) => {
+            console.error(error)
+          });
+     }
+    });
   }
 }
 
@@ -280,7 +283,8 @@ app.post('/add-notification', authenticateToken, jsonParser, async (req, res) =>
   const notifPrice = req.body.notifPrice, 
     notifCondition = req.body.notifCondition, 
     notifTicker = req.body.notifTicker, 
-    notifUser = req.username;
+    notifUser = req.username,
+    lastTriggered = Date.now() - MILLISECONDS_IN_DAY;
   const notifID = notifPrice + notifCondition + notifTicker + notifUser;
 
     try {
@@ -290,6 +294,8 @@ app.post('/add-notification', authenticateToken, jsonParser, async (req, res) =>
         userID: notifUser,
         price: notifPrice,
         condition: notifCondition,
+        lastTriggered: lastTriggered,
+
       });
       res.json({ status: 'ok' });
     } catch (err) {
