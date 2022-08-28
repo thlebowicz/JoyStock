@@ -6,6 +6,7 @@ const Context = React.createContext(null);
 const ContextProvider = ({ children }) => {
 	const [authToken, setAuthToken] = useState(sessionStorage.getItem('joystockToken') || "");
 	const [username, setUsername] = useState("");
+	const [data, setData] = useState([]);
 	const navigate = useNavigate();
 
 	console.log("Creating context");
@@ -47,6 +48,8 @@ const ContextProvider = ({ children }) => {
 				setAuthToken,
 				setUsername,
 				logout,
+				data,
+				setData,
 			}}
 		>
 			{children}

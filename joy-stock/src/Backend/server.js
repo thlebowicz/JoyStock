@@ -388,7 +388,7 @@ app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) =>
     const priceData = await fetch(QUERY_1 + ticker + timeStr + QUERY_2)
       .then((data) => data.json())
       .then((json) => json?.results);
-    res.send(priceData.slice(0, numDatapoints));
+    res.send(priceData.slice(0, numDatapoints).map(res=>res.vw));
   } catch (err) {
     console.error(err);
   }

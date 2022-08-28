@@ -22,11 +22,10 @@ function ListTab() {
   const [quantityToAdd, setQuantityToAdd] = useState(0);
   const [notifToggle, setNotifToggle] = useState('');
   const [notifTicker, setNotifTicker] = useState('');
-  const [data, setData] = useState([]);
   const context = useContext(Context);
   const authToken = context.authToken;
-
-  
+  const data = context.data,
+    setData = context.setData;
 
   const handleClick = async (e) => {
     await addTickerToData(tickerToAdd, quantityToAdd);
@@ -47,7 +46,7 @@ function ListTab() {
 
   useEffect(() => {
     const readDataOnLoad = async () => {
-      await readData();    
+      await readData();
     };
     readDataOnLoad();
   }, []);
