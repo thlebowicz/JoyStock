@@ -14,7 +14,7 @@ import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CardContent from '@mui/material/CardContent';
 
-function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle }) {
+function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle, addCommas }) {
 
   const theme = createTheme();
   const [expanded, setExpanded] = useState(false);
@@ -28,25 +28,6 @@ function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle
     if (!isNaN(parseInt(num))) {
       return num.toFixed(2);
     } else return num;
-  }
-
-  const addCommas = (num) => {
-    if (num === 'No data available') {
-      return num;
-    }
-    const str = String(num); 
-    if (str.length <= 3) {
-      return str;
-    } else {
-      let ans = str.slice(str.length - 3);
-      for (let i = str.length - 3; i >= 0; i -= 3) {
-        ans = str.slice(i - 3, i) + ',' + ans;
-        if (i <= 2) {
-          ans = str.slice(0, i) + ans;
-        }
-      }
-      return ans[0] === ',' ? ans.slice(1) : ans;
-    }
   }
 
   const dailyGain = round(100 * (currPrice / lastDayPrice - 1));
@@ -70,7 +51,7 @@ function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle
           <Typography sx={{marginLeft: 5, width: '9%'}} variant='h6'>{ticker}</Typography>
           <Typography sx={{marginLeft: 5, width: '7%'}} variant='h7'>${round(currPrice)}</Typography>
           <Typography sx={{marginLeft: 5, width: '7%'}} variant='h7'>{quantity} shares</Typography>
-          <Typography sx={{marginLeft: 5, width: '30%'}} variant='h7'>Total holdings: ${round(quantity * currPrice)}</Typography>
+          <Typography sx={{marginLeft: 5, width: '30%'}} variant='h7'>Total holdings: {addCommas(Number(round(quantity * currPrice)))}</Typography>
           <Typography 
             sx={{
                   marginLeft: 5, 
@@ -140,27 +121,27 @@ function StockCard({ stock, deleteTickerFromData, setNotifTicker, setNotifToggle
           <table>
             <tr>
               <td>Revenue:</td>
-              <td>${addCommas(revenue)}</td>
+              <td>{addCommas(revenue)}</td>
               <td>Assets:</td>
-              <td>${addCommas(assets)}</td>
+              <td>{addCommas(assets)}</td>
               <td>Operating Cash Flow:</td>
-              <td>${addCommas(cfo)}</td>
+              <td>{addCommas(cfo)}</td>
             </tr>
             <tr>
               <td>Net Income:</td>
-              <td>${addCommas(netIncome)}</td>
+              <td>{addCommas(netIncome)}</td>
               <td>Equity:</td>
-              <td>${addCommas(equity)}</td>
+              <td>{addCommas(equity)}</td>
               <td>Investing Cash Flow</td>
-              <td>${addCommas(cfi)}</td>
+              <td>{addCommas(cfi)}</td>
             </tr>
             <tr>
               <td>Basic EPS</td>
               <td>${basicEPS}</td>
               <td>Liabilities:</td>
-              <td>${addCommas(liabilities)}</td>
+              <td>{addCommas(liabilities)}</td>
               <td>Financing Cash Flow:</td>
-              <td>${addCommas(cff)}</td>
+              <td>{addCommas(cff)}</td>
             </tr>
           </table>
         </CardContent>

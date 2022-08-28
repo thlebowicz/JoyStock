@@ -27,6 +27,15 @@ function ListTab() {
   const data = context.data,
     setData = context.setData;
 
+    const addCommas = (num) => {
+      if (num === 'No data available') {
+        return num;
+      } else {
+        const ansNum = num.toLocaleString('en-US');
+        return String(num)[0] === '-' ? '-$' + ansNum.slice(1) : '$' + ansNum;
+       }
+    }
+
   const handleClick = async (e) => {
     await addTickerToData(tickerToAdd, quantityToAdd);
   };
@@ -176,11 +185,11 @@ function ListTab() {
             }}
           >
             <Typography variant="h5">
-              Portfolio value: $
+              Portfolio value: &nbsp;
               {data.length
-                ? round(
+                ? addCommas(Number(round(
                     data.reduce((a, b) => a + b.currPrice * b.quantity, 0)
-                  )
+                  )))
                 : 0.0}
             </Typography>
           </div>
@@ -190,6 +199,7 @@ function ListTab() {
               deleteTickerFromData={deleteTickerFromData}
               setNotifToggle={setNotifToggle}
               setNotifTicker={setNotifTicker}
+              addCommas={addCommas}
             />
           ))}
         </Container>
