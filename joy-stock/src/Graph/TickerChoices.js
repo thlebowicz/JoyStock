@@ -38,10 +38,8 @@ function TickerChoices() {
 			<ListItem
 				key={ticker}
 				sx={{
-					borderStyle: 'solid',
-					borderColor: 'black',
-					borderWidth: '3px',
-					borderRadius: '10px',
+					backgroundColor: 'black',
+					color: 'white',
 				}}
 			>
 				<ListItemButton onClick={() => handleToggle(ticker)}>
@@ -59,7 +57,11 @@ function TickerChoices() {
 		);
 	});
 
-	return <List sx={{ width: '100%', maxWidth: 360 }}>{rows}</List>;
+	return (
+		<List sx={{ width: '100%', maxWidth: 300, borderRadius: '10px' }}>
+			{rows}
+		</List>
+	);
 }
 
 export default TickerChoices;

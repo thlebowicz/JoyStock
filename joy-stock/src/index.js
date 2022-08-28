@@ -34,9 +34,11 @@ function ContextWrapper() {
 }
 
 function RouteWrapper() {
+  const context = useContext(Context);
+
   return (
     <div>
-      <Header />
+      {context.username === "" ? null: <Header /> }
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/list" element={<ListTab />} />
