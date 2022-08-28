@@ -23,7 +23,7 @@ const Notification = mongoose.Schema(
       required: true,
     },
     lastTriggered: {
-      type: Date,
+      type: Number,
     },  
 	},
 	{ collection: 'notification-data' }

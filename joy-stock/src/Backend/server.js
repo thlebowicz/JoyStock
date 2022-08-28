@@ -11,31 +11,39 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const LRU = require('lru-cache');
 
-const sgMail = require('@sendgrid/mail')
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/joystock2');
+mongoose.connect('mongodb://localhost:27017/joystock');
 
 // mongoose.connect('');
 
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 =
-  '?adjusted=true&sort=desc&limit=120&apiKey=' + process.env.POLYGON_API_KEY;
+  '?adjusted=true&sort=desc&limit=120&apiKey=' +
+  process.env.POLYGON_API_KEY;
 const FUNDAMENTALS = {
-  income_statement: ['revenues', 'net_income_loss', 'basic_earnings_per_share'], 
+  income_statement: [
+    'revenues',
+    'net_income_loss',
+    'basic_earnings_per_share',
+  ],
   balance_sheet: ['assets', 'equity', 'liabilities'],
-  cash_flow_statement: ['net_cash_flow_from_operating_activities', 'net_cash_flow_from_investing_activities', 
-    'net_cash_flow_from_financing_activities_continuing'],
+  cash_flow_statement: [
+    'net_cash_flow_from_operating_activities',
+    'net_cash_flow_from_investing_activities',
+    'net_cash_flow_from_financing_activities_continuing',
+  ],
 };
 const MILLISECONDS_IN_DAY = 86400000;
 
 const options = {
   max: 500,
   ttl: 1000 * 60 * 24,
-}
+};
 
 const cache = new LRU(options);
 
@@ -43,94 +51,128 @@ const fetchTickerPrice = (ticker) => {
   if (cache.get(ticker)) {
     return cache.get(ticker)[0];
   } else {
-    const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
-    return fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json())
-    .then(json => json?.results[0]?.vw);
+    const timeStr =
+      '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
+    return fetch(QUERY_1 + ticker + timeStr + QUERY_2)
+      .then((data) => data.json())
+      .then((json) => json?.results[0]?.vw);
   }
-}
+};
 
 const sendAllNotifications = async () => {
-  const allStocks = await Notification.distinct("ticker"); 
-  await Promise.all(allStocks.map(async (stock) => {
-    const stockPrice = await fetchTickerPrice(stock);
-    sendNotificationsForStock(stock, stockPrice);
-  }));
-}
+  const allStocks = await Notification.distinct('ticker');
+  await Promise.all(
+    allStocks.map(async (stock) => {
+      const stockPrice = await fetchTickerPrice(stock);
+      sendNotificationsForStock(stock, stockPrice);
+    })
+  );
+};
 
 // Notification worker
-setInterval(sendAllNotifications, 1000 * 60 * 60); 
-let meme = true;
+setInterval(sendAllNotifications, 1000 * 60 * 60);
 const sendNotificationsForStock = async (stock, price) => {
   if (price) {
-    const greaterThan = await Notification.find({ticker: stock, condition: ">=", price: { $lte: price }});
-    const lessThan = await Notification.find({ticker: stock, condition: "<=", price: { $gte: price }});
+    const greaterThan = await Notification.find({
+      ticker: stock,
+      condition: '>=',
+      price: { $lte: price },
+    });
+    const lessThan = await Notification.find({
+      ticker: stock,
+      condition: '<=',
+      price: { $gte: price },
+    });
     const notifsToSend = [...greaterThan, ...lessThan];
     notifsToSend.forEach((notif) => {
-      if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY && meme) {
-        meme = false;
+      console.log("notif", notif);
+      console.log(Date.now(), notif.lastTriggered, Date.now()-notif.lastTriggered, MILLISECONDS_IN_DAY);
+      if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY) {
         const { userID, ticker, condition, price } = notif;
         const msg = {
           to: userID, // Change to your recipient
           from: 'joystock.portfolio.official@gmail.com', // Change to your verified sender
           subject: 'JoyStock Notification Triggered',
-          text: ticker + ' price is now ' + (condition === '>=' ? 'above ' : 'below ') + price + '!',
-        }
+          text:
+            ticker +
+            ' price is now ' +
+            (condition === '>=' ? 'above ' : 'below ') +
+            price +
+            '!',
+        };
         sgMail
           .send(msg)
           .then(() => {
-            console.log('Email sent')
+            notif.lastTriggered = Date.now();
+            notif.save();
           })
           .catch((error) => {
-            console.error(error)
+            console.error(error);
           });
-     }
+      }
     });
   }
-}
+};
 
 const fetchTickers = async (tickers) => {
   const stockPrices = [];
-  
+
   const tickerData = await Promise.all(tickers.map(fetchTicker));
   tickerData.forEach((tickerObj) => {
-      const { ticker, priceData, historicalData } = tickerObj;
-      const priceFeed = priceData.results;
-      const stockDataToSend = priceFeed ? [ticker, priceFeed[0].vw, priceFeed[1].vw] : ['API Limit Reached', 0, 0];
-      for (const statement in FUNDAMENTALS) {
-        for (const field of FUNDAMENTALS[statement]) {
-          const data = historicalData?.[statement]?.[field]?.value;
-          stockDataToSend.push(data ? data : 'No data available');
-        }
+    const { ticker, priceData, historicalData } = tickerObj;
+    const priceFeed = priceData.results;
+    const stockDataToSend = priceFeed
+      ? [ticker, priceFeed[0].vw, priceFeed[1].vw]
+      : ['API Limit Reached', 0, 0];
+    for (const statement in FUNDAMENTALS) {
+      for (const field of FUNDAMENTALS[statement]) {
+        const data = historicalData?.[statement]?.[field]?.value;
+        stockDataToSend.push(data ? data : 'No data available');
       }
-      stockPrices.push(stockDataToSend);
+    }
+    stockPrices.push(stockDataToSend);
   });
   return stockPrices;
-} 
+};
 
 const fetchTicker = async (ticker) => {
-
-   const timeStr = '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
-   let ret;
-   if (cache.get(ticker)) {
+  const timeStr =
+    '/range/1/day/' + (Date.now() - 304800000) + '/' + Date.now();
+  let ret;
+  if (cache.get(ticker)) {
     ret = cache.get(ticker);
-   } else {
-    const priceDataPromise = fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json()); 
-   
-    const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=' + process.env.POLYGON_API_KEY)
-                                    .then(data => data.json())
-                                    .then(json => json && json.results && json.results[0] ? json.results[0].financials : null);
-    const [priceData, historicalData] = await Promise.all([priceDataPromise, historicalDataPromise]);
+  } else {
+    const priceDataPromise = fetch(
+      QUERY_1 + ticker + timeStr + QUERY_2
+    ).then((data) => data.json());
+
+    const historicalDataPromise = fetch(
+      'https://api.polygon.io/vX/reference/financials?ticker=' +
+        ticker +
+        '&apiKey=' +
+        process.env.POLYGON_API_KEY
+    )
+      .then((data) => data.json())
+      .then((json) =>
+        json && json.results && json.results[0]
+          ? json.results[0].financials
+          : null
+      );
+    const [priceData, historicalData] = await Promise.all([
+      priceDataPromise,
+      historicalDataPromise,
+    ]);
     const tickerData = {
       ticker,
       priceData: priceData,
       historicalData: historicalData,
     };
-    cache.set(ticker, tickerData)
+    cache.set(ticker, tickerData);
     ret = tickerData;
   }
   sendNotificationsForStock(ret.ticker, ret?.priceData?.results[0]?.vw);
   return ret;
-}
+};
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -146,7 +188,7 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-app.get("/get-username", authenticateToken, async (req, res) => {
+app.get('/get-username', authenticateToken, async (req, res) => {
   res.send({ username: req.username });
 });
 
@@ -162,13 +204,13 @@ app.get('/', authenticateToken, async (req, res) => {
 const refreshData = async (user) => {
   if (!user) {
     return null;
-  };
+  }
 
   const stockQtys = user.stockQuantities;
   const tickers = [...user.stockQuantities.keys()];
   const newPrices = await fetchTickers(tickers);
 
-  const newData = newPrices.map(arr => {
+  const newData = newPrices.map((arr) => {
     return {
       ticker: arr[0],
       currPrice: arr[1],
@@ -183,7 +225,7 @@ const refreshData = async (user) => {
       cfi: arr[10],
       cff: arr[11],
       quantity: stockQtys.get(arr[0]),
-    }
+    };
   });
   return newData;
 };
@@ -205,7 +247,7 @@ app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
     const newVal = parseInt(quantity) + currVal;
     user.stockQuantities.set(ticker, newVal);
     user.save();
-    const newData = await refreshData(user); 
+    const newData = await refreshData(user);
     res.send(newData);
   }
 });
@@ -262,13 +304,13 @@ app.post(
       username = req.username,
       user = await User.findOne({
         userID: username,
-       });
+      });
     if (!user) {
       res.json({ status: 'error', error: 'invalid user' });
     } else {
       user.stockQuantities.delete(ticker);
       user.save();
-      const newData = await refreshData(user); 
+      const newData = await refreshData(user);
       res.send(newData);
     }
   }
@@ -279,13 +321,17 @@ app.get('/get-notifications', authenticateToken, async (req, res) => {
   res.send(userNotifs);
 });
 
-app.post('/add-notification', authenticateToken, jsonParser, async (req, res) => {
-  const notifPrice = req.body.notifPrice, 
-    notifCondition = req.body.notifCondition, 
-    notifTicker = req.body.notifTicker, 
-    notifUser = req.username,
-    lastTriggered = Date.now() - MILLISECONDS_IN_DAY;
-  const notifID = notifPrice + notifCondition + notifTicker + notifUser;
+app.post(
+  '/add-notification',
+  authenticateToken,
+  jsonParser,
+  async (req, res) => {
+    const notifPrice = req.body.notifPrice,
+      notifCondition = req.body.notifCondition,
+      notifTicker = req.body.notifTicker,
+      notifUser = req.username,
+      lastTriggered = 0;
+    const notifID = notifPrice + notifCondition + notifTicker + notifUser;
 
     try {
       await Notification.create({
@@ -295,7 +341,6 @@ app.post('/add-notification', authenticateToken, jsonParser, async (req, res) =>
         price: notifPrice,
         condition: notifCondition,
         lastTriggered: lastTriggered,
-
       });
       res.json({ status: 'ok' });
     } catch (err) {
@@ -304,13 +349,18 @@ app.post('/add-notification', authenticateToken, jsonParser, async (req, res) =>
         error: 'error',
       });
     }
-  });
+  }
+);
 
-app.post('/delete-notification', authenticateToken, jsonParser, async (req, res) => {
+app.post(
+  '/delete-notification',
+  authenticateToken,
+  jsonParser,
+  async (req, res) => {
     const notifID = req.body.notifID;
     const notif = await Notification.findOne({
-        notifID: notifID,
-       });
+      notifID: notifID,
+    });
     if (!notif) {
       res.json({ status: 'error', error: 'invalid notification' });
     } else {
