@@ -19,13 +19,11 @@ app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/joystock2');
 
-const secret =
-  '13685c935eeabf0eaa10e00fadca1e730df9d58509ea0fd7961b7d968c8bcb82aca7462b8740f59278ba234e14921d7f16c3a4a45459c846eafcfa16384a0e55';
 // mongoose.connect('');
 
 const QUERY_1 = 'https://api.polygon.io/v2/aggs/ticker/';
 const QUERY_2 =
-  '?adjusted=true&sort=desc&limit=120&apiKey=chLY12wPaVGmzldoTfSROxsKOfJfS4GY';
+  '?adjusted=true&sort=desc&limit=120&apiKey=' + process.env.POLYGON_API_KEY;
 const FUNDAMENTALS = {
   income_statement: ['revenues', 'net_income_loss', 'basic_earnings_per_share'], 
   balance_sheet: ['assets', 'equity', 'liabilities'],
@@ -118,7 +116,7 @@ const fetchTicker = async (ticker) => {
    } else {
     const priceDataPromise = fetch(QUERY_1 + ticker + timeStr + QUERY_2).then(data => data.json()); 
    
-    const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=9YzCTVZEnMUGgKfV6XK1CNQwKqPPeOK2')
+    const historicalDataPromise = fetch('https://api.polygon.io/vX/reference/financials?ticker=' + ticker + '&apiKey=' + process.env.POLYGON_API_KEY)
                                     .then(data => data.json())
                                     .then(json => json && json.results && json.results[0] ? json.results[0].financials : null);
     const [priceData, historicalData] = await Promise.all([priceDataPromise, historicalDataPromise]);
