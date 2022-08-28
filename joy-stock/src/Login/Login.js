@@ -53,30 +53,42 @@ function Login({ readData }) {
     setDialogToggle(true);
   };
 
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
   const handleSignup = (event) => {
     event.preventDefault();
     const username = event.target.newUser.value;
-    const pass = event.target.newPass.value;
-    fetch('http://localhost:3000/signup', {
-      method: 'POST',
-      headers: {
-        Accept: 'application.json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: username,
-        password: pass,
-      }),
-      cache: 'default',
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        const status = json.status;
-        if (status === 'ok') {
-          alert('New account created!');
-        } else alert('Invalid signup!');
-      });
-    onCloseDialog();
+    if (!validateEmail(username)) {
+      alert('User must be in email format!'); 
+    } else {
+      const pass = event.target.newPass.value;
+      fetch('http://localhost:3000/signup', {
+        method: 'POST',
+        headers: {
+          Accept: 'application.json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: pass,
+        }),
+        cache: 'default',
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          const status = json.status;
+          if (status === 'ok') {
+            alert('New account created!');
+          } else alert('Invalid signup!');
+        });
+      onCloseDialog();
+    }
   };
 
   const onCloseDialog = () => {
