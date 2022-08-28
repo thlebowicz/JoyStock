@@ -70,11 +70,12 @@ const sendNotificationsForStock = async (stock, price) => {
     notifsToSend.forEach((notif) => {
       if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY && meme) {
         meme = false;
+        const { userID, ticker, condition, price } = notif;
         const msg = {
-          to: 'thomas.hlebowicz@gmail.com', // Change to your recipient
+          to: userID, // Change to your recipient
           from: 'joystock.portfolio.official@gmail.com', // Change to your verified sender
-          subject: 'Notification Triggered',
-          text: 'Your notification was triggered!',
+          subject: 'JoyStock Notification Triggered',
+          text: ticker + ' price is now ' + (condition === '>=' ? 'above ' : 'below ') + price + '!',
         }
         sgMail
           .send(msg)
