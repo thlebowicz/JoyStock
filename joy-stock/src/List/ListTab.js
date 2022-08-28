@@ -67,8 +67,14 @@ function ListTab() {
     })
       .then((response) => response.json())
       .then((json) => { 
-        if (json.status !== 'error') setData(json);
-        else alert('Invalid ticker!');
+        console.log('Era message: ',  json);  
+        if (json.error === 'invalid ticker') {
+          alert('Invalid ticker!');
+        } else if (json.error === 'invalid quantity') {
+          alert('Invalid quantity!');
+        } else {
+          setData(json);
+        }
       });
   };
 

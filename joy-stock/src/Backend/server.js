@@ -254,13 +254,21 @@ const validateTicker = (tickerStr) => {
   return allTickers.has(tickerStr);
 }
 
+const validateQuantity = (quantity) => {
+  const parsed = parseInt(quantity);
+  return parsed && parsed > 0;
+}
+
 app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
   const ticker = req.body.ticker,
     quantity = req.body.quantity,
     username = req.username;
   
   if (!validateTicker(ticker)) {
-    res.json({ status: 'error', error: 'invalid ticker'});
+    res.json({ status: 'error', error: 'invalid ticker' });
+    return;
+  } else if (!validateQuantity(quantity)) {
+    res.json({ status: 'error', error: 'invalid quantity' });
     return;
   }
 
