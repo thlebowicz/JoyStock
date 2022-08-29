@@ -20,6 +20,7 @@ function TickerChoices() {
 	const context = useContext(Context);
 	const tickers = context.data.map((entry) => entry.ticker);
 	const [selected, setSelected] = useState([...tickers]);
+	const [allSelected, setAllSelected] = useState(true);
 
 	const handleToggle = (tkr) => {
 		const alreadyInside = selected.includes(tkr);
@@ -32,6 +33,17 @@ function TickerChoices() {
 				}
 			});
 			setSelected(newSelected);
+		}
+		setAllSelected(selected.length === tickers.length ? true : false);
+	};
+
+	const toggleAll = () => {
+		if (!allSelected) {
+			setSelected([...tickers]);
+			setAllSelected(true);
+		} else {
+			setSelected([]);
+			setAllSelected(false);
 		}
 	};
 
@@ -74,8 +86,17 @@ function TickerChoices() {
 					textAlign: 'center',
 				}}
 			>
-				Tickers to Graph
-				<Divider light/>
+				<Box>
+					<Box
+						sx={{
+							marginBottom: '-15px',
+						}}
+					>
+						Tickers to Graph
+					</Box>
+					<Button onClick={() => toggleAll()}>Toggle All</Button>
+				</Box>
+				<Divider sx={{ backgroundColor: 'white' }} />
 			</ListSubheader>
 		);
 	};
@@ -84,11 +105,11 @@ function TickerChoices() {
 		<List
 			sx={{
 				width: '100%',
-				maxWidth: 300,
+				maxWidth: 270,
 				borderStyle: 'solid',
 				borderRadius: '15px',
 				backgroundColor: 'black',
-				maxHeight: '500px',
+				maxHeight: '800px',
 				overflow: 'auto',
 				padding: '0',
 			}}
