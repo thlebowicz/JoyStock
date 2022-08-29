@@ -10,15 +10,18 @@ import {
 } from 'recharts';
 import { Context } from '../Context/Context.js';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 function Graph({ selectedTickers }) {
-	const [dataInterval, setDataInterval] = useState('year');
+	const [dataInterval, setDataInterval] = useState('day');
 	const [numPoints, setNumPoints] = useState(10);
 	const [allData, setAllData] = useState([]);
 	const context = useContext(Context);
 	const authToken = context.authToken;
 
 	const getAllData = () => {
+    console.log('numPoints:', numPoints);
 		fetch('http://localhost:3000/fetch-graph-data', {
 			method: 'POST',
 			headers: {
@@ -82,9 +85,10 @@ function Graph({ selectedTickers }) {
 	});
 
 	return (
+    <div>
 		<LineChart
-			width={1400}
-			height={800}
+			width={800}
+			height={500}
 			data={allData}
 			margin={{
 				top: 5,
@@ -100,6 +104,19 @@ function Graph({ selectedTickers }) {
 			<Legend />
 			{lines}
 		</LineChart>
+    <TextField
+        onChange={(e) => setNumPoints(e.target.value)}
+        placeholder="Select number of days to display"
+        style={{
+          width: '35%',
+          position: 'relative',
+          left: '5em',
+        }}
+      />
+      <Button variant="outlined" onClick={getAllData} sx={{position: 'relative', left: '10em'}}>
+              Refresh
+        </Button>
+      </div>
 	);
 }
 

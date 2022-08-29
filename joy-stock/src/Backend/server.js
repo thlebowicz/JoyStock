@@ -421,7 +421,7 @@ app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) =>
         .then(priceData => priceData.slice(0, numDatapoints).map(res=>res.vw).reverse())
         .catch(err => console.error(err)))
   ));
-  const ret = new Array(data[0].length).fill(0).map(() => new Object());
+  const ret = new Array(data[0]?.length ? data[0].length : 0).fill(0).map(() => new Object());
   for (let i = 0; i < ret.length; i++) {
     ret[i]['x'] = i; 
     for (let j = 0; j < tickers.length; j++) {
