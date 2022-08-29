@@ -423,6 +423,7 @@ app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) =>
   ));
   const ret = new Array(data[0].length).fill(0).map(() => new Object());
   for (let i = 0; i < ret.length; i++) {
+    ret[i]['x'] = i; 
     for (let j = 0; j < tickers.length; j++) {
       ret[i][tickers[j]] = data[j][i];
     }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useContext, useState} from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -8,19 +9,31 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Header from '../Header/Header.js';
 import TickerChoices from './TickerChoices.js';
+import { Context } from '../Context/Context.js';
+import Graph from "./Graph.js";
 
 function GraphTab() {
+  const context = useContext(Context);
+  const tickers = context.data.map((entry) => entry.ticker);
+  const [selectedTickers, setSelectedTickers] = useState([...tickers]);
+  const [allSelected, setAllSelected] = useState(true);
+
   return (
     <GraphBodyWrapper>
       <div />
       <GraphUIWrapper>
-        <TickerChoices></TickerChoices>
-        <div>
-          Lorem ipsum dolor sit amet, consectetur adipisicing, elit. Sed
-          tenetur atque optio sunt officia nobis exercitationem soluta vel,
-          magni culpa rerum quia doloribus, mollitia nemo ab quod nostrum
-          et voluptatum?
-        </div>
+        <TickerChoices
+          selectedTickers={selectedTickers}
+          setSelectedTickers={setSelectedTickers}
+          allSelected={allSelected}
+          setAllSelected={setAllSelected}
+          tickers={tickers}
+        ></TickerChoices>
+        <Graph
+                  selectedTickers={selectedTickers}
+>
+          
+        </Graph>
       </GraphUIWrapper>
       <div />
     </GraphBodyWrapper>

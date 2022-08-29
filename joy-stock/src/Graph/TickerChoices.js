@@ -7,7 +7,6 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { Context } from '../Context/Context.js';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -16,33 +15,36 @@ import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import Divider from '@mui/material/Divider';
 
-function TickerChoices() {
-	const context = useContext(Context);
-	const tickers = context.data.map((entry) => entry.ticker);
-	const [selected, setSelected] = useState([...tickers]);
-	const [allSelected, setAllSelected] = useState(true);
-
+function TickerChoices({
+	selectedTickers,
+	setSelectedTickers,
+	allSelected,
+	setAllSelected,
+	tickers,
+}) {
 	const handleToggle = (tkr) => {
-		const alreadyInside = selected.includes(tkr);
+		const alreadyInside = selectedTickers.includes(tkr);
 		if (!alreadyInside) {
-			setSelected([...selected, tkr]);
+			setSelectedTickers([...selectedTickers, tkr]);
 		} else {
-			const newSelected = selected.map((elem) => {
+			const newSelected = selectedTickers.map((elem) => {
 				if (elem != tkr) {
 					return elem;
 				}
 			});
-			setSelected(newSelected);
+			setSelectedTickers(newSelected);
 		}
-		setAllSelected(selected.length === tickers.length ? true : false);
+		setAllSelected(
+			selectedTickers.length === tickers.length ? true : false
+		);
 	};
 
 	const toggleAll = () => {
 		if (!allSelected) {
-			setSelected([...tickers]);
+			setSelectedTickers([...tickers]);
 			setAllSelected(true);
 		} else {
-			setSelected([]);
+			setSelectedTickers([]);
 			setAllSelected(false);
 		}
 	};
@@ -60,7 +62,7 @@ function TickerChoices() {
 					<ListItemIcon>
 						<Checkbox
 							edge="start"
-							checked={selected.includes(ticker)}
+							checked={selectedTickers.includes(ticker)}
 							disableRipple
 							sx={{
 								color: 'white',

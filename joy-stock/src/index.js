@@ -38,7 +38,7 @@ function RouteWrapper() {
 
   return (
     <div>
-      {context.username === "" ? null: <Header /> }
+      {context.username === '' ? null : <Header />}
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/list" element={<ListTab />} />

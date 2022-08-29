@@ -41,7 +41,7 @@ function Header() {
             Notifications
           </ListItem>
           <ListItem />
-          <ListItem>
+          <ListItem sx={{userSelect: 'none'}}>
             Logged in as: {context.username}
           </ListItem>
           <ListItem 
