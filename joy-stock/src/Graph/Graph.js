@@ -7,13 +7,12 @@ import {
 	CartesianGrid,
 	Tooltip,
 	Legend,
-	ResponsiveContainer,
 } from 'recharts';
 import { Context } from '../Context/Context.js';
 import Box from '@mui/material/Box';
 
 function Graph({ selectedTickers }) {
-	const [dataInterval, setDataInterval] = useState('day');
+	const [dataInterval, setDataInterval] = useState('year');
 	const [numPoints, setNumPoints] = useState(10);
 	const [allData, setAllData] = useState([]);
 	const context = useContext(Context);
@@ -41,20 +40,51 @@ function Graph({ selectedTickers }) {
 	};
 
 	useEffect(() => {
+		console.log('here');
 		const initGraphLoad = async () => {
 			await getAllData();
 		};
 		initGraphLoad();
 	}, []);
 
-	const lines = selectedTickers.map((tkr) => {
-		return <Line type="monotone" dataKey={tkr} stroke="#82ca9d" />;
+	const colors = [
+		'#F1948A',
+		'#D98880',
+		'#85C1E9',
+		'#BB8FCE',
+		'#7FB3D5',
+		'#76D7C4',
+		'#7DCEA0',
+		'#E59866',
+		'#B2BABB',
+		'#82E0AA',
+		'#F8C471',
+		'#F7DC6F',
+		'#C39BD3',
+		'#F0B27A',
+		'#D7DBDD',
+		'#73C6B6',
+		'#BFC9CA',
+		'#F4F6F7',
+		'#808B96',
+		'#85929E',
+	];
+
+	const lines = selectedTickers.map((tkr, index) => {
+		return (
+			<Line
+				type="monotone"
+				dataKey={tkr}
+				stroke={colors[index % colors.length]}
+				strokeWidth={3}
+			/>
+		);
 	});
 
 	return (
 		<LineChart
-			width={500}
-			height={300}
+			width={1400}
+			height={800}
 			data={allData}
 			margin={{
 				top: 5,
