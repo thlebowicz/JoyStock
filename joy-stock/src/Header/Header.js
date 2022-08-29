@@ -28,7 +28,7 @@ function Header() {
       <Toolbar>
         <List sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr 7fr 1fr 1fr',
+          gridTemplateColumns: '1fr 1fr 1fr 30fr 1fr 1fr',
           width: '100vw',
         }}>
           <ListItem button={true} className='nav-button' onClick={() => navigate('/list')}>
@@ -57,8 +57,6 @@ function Header() {
       </Toolbar>
     </AppBar>
   );
-
-
 }
 
 export default Header; 

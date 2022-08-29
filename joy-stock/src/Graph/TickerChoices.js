@@ -13,11 +13,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
+import Divider from '@mui/material/Divider';
 
 function TickerChoices() {
 	const context = useContext(Context);
 	const tickers = context.data.map((entry) => entry.ticker);
-	const [selected, setSelected] = useState([]);
+	const [selected, setSelected] = useState([...tickers]);
 
 	const handleToggle = (tkr) => {
 		const alreadyInside = selected.includes(tkr);
@@ -47,8 +49,13 @@ function TickerChoices() {
 						<Checkbox
 							edge="start"
 							checked={selected.includes(ticker)}
-							tabIndex={-1}
 							disableRipple
+							sx={{
+								color: 'white',
+								'&.Mui-checked': {
+									color: 'white',
+								},
+							}}
 						/>
 					</ListItemIcon>
 					<ListItemText id={`${ticker}${index}`} primary={`${ticker}`} />
@@ -57,8 +64,36 @@ function TickerChoices() {
 		);
 	});
 
+	const SubHeader = () => {
+		return (
+			<ListSubheader
+				sx={{
+					backgroundColor: 'black',
+					color: 'white',
+					fontSize: '22px',
+					textAlign: 'center',
+				}}
+			>
+				Tickers to Graph
+				<Divider light/>
+			</ListSubheader>
+		);
+	};
+
 	return (
-		<List sx={{ width: '100%', maxWidth: 300, borderRadius: '10px' }}>
+		<List
+			sx={{
+				width: '100%',
+				maxWidth: 300,
+				borderStyle: 'solid',
+				borderRadius: '15px',
+				backgroundColor: 'black',
+				maxHeight: '500px',
+				overflow: 'auto',
+				padding: '0',
+			}}
+		>
+			<SubHeader>{`Tickers to Graph`}</SubHeader>
 			{rows}
 		</List>
 	);
