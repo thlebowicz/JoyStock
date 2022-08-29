@@ -409,19 +409,19 @@ app.post(
 );
 
 app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) => {
-  const numDatapoints = req.body.numDatapoints, ticker = req.body.ticker, interval = req.body.interval;
+  const numDatapoints = req.body.numDatapoints, tickers = req.body.tickers, interval = req.body.interval;
   // Accounting for market holidays
   const totalQueries = 100;
   const timeStr =
       '/range/1/' + interval + '/' + (Date.now() - MILLISECONDS_PER_INTERVAL[interval] * totalQueries) + '/' + Date.now();
-  try {
-    const priceData = await fetch(QUERY_1 + ticker + timeStr + QUERY_2)
-      .then((data) => data.json())
-      .then((json) => json?.results);
-    res.send(priceData.slice(0, numDatapoints).map(res=>res.vw));
-  } catch (err) {
-    console.error(err);
-  }
+  const data = await(Promise.all(tickers.map(ticker => 
+    fetch(QUERY_1 + ticker + timeStr + QUERY_2)
+        .then((data) => data.json())
+        .then((json) => json?.results)
+        .then(priceData => priceData.slice(0, numDatapoints).map(res=>res.vw).reverse())
+        .catch(err => console.error(err)))
+  ));
+  res.send(data);
 });
 
 // const interval = 'day';
