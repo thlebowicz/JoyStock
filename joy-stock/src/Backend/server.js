@@ -421,7 +421,13 @@ app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) =>
         .then(priceData => priceData.slice(0, numDatapoints).map(res=>res.vw).reverse())
         .catch(err => console.error(err)))
   ));
-  res.send(data);
+  const ret = new Array(data[0].length).fill(0).map(() => new Object());
+  for (let i = 0; i < ret.length; i++) {
+    for (let j = 0; j < tickers.length; j++) {
+      ret[i][tickers[j]] = data[j][i];
+    }
+  }
+  res.send(ret);
 });
 
 // const interval = 'day';
