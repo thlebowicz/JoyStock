@@ -27,7 +27,9 @@ function Header() {
     <AppBar component='nav' sx={{ backgroundColor: 'black' }}>
       <Toolbar>
         <List sx={{
-          display: 'flex',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr 7fr 1fr 1fr',
+          width: '100vw',
         }}>
           <ListItem button={true} className='nav-button' onClick={() => navigate('/list')}>
             Portfolio
@@ -38,20 +40,15 @@ function Header() {
           <ListItem button={true} className='nav-button' onClick={() => navigate('/notifications')}>
             Notifications
           </ListItem>
-          <ListItem
-            sx={{
-              position: 'relative',
-            }}
-          >
-            {context.username}
+          <ListItem />
+          <ListItem>
+            Logged in as: {context.username}
           </ListItem>
           <ListItem 
             button={true} 
             className='nav-button' 
             onClick={context.logout}
             sx={{
-              position: 'relative',
-              left: '300%',
             }}
           >
             Logout
