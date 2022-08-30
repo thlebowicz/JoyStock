@@ -29,7 +29,7 @@
     "prettier": "2.7.1"
   },
   "scripts": {
-    "start": "cd backend && node server.js",
+    "start": "cd backend && npm install && node server.js",
     "heroku-postbuild": "cd ../frontend && npm install && npm run build",
     "build": "react-scripts build",
     "test": "react-scripts test",
