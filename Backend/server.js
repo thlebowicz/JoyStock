@@ -51,7 +51,7 @@ const MILLISECONDS_PER_INTERVAL = {
 
 let allTickers;
 
-fs.readFile('./tickers.txt', 'utf8', (err, data) => {
+fs.readFile('backend/tickers.txt', 'utf8', (err, data) => {
   if (err) {
     console.error(err);
     return;
