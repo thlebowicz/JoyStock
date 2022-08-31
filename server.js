@@ -5,12 +5,12 @@ const User = require('./models/user.model');
 const Notification = require('./models/notification.model');
 const jwt = require('jsonwebtoken');
 const app = express();
-const port = 3000;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const LRU = require('lru-cache');
 const fs = require('fs');
+const path = require('path');
 
 
 const sgMail = require('@sendgrid/mail');
@@ -18,6 +18,11 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname+'/client/build/index.html'));
+});
 
 mongoose.connect('mongodb://localhost:27017/joystock');
 
@@ -51,7 +56,7 @@ const MILLISECONDS_PER_INTERVAL = {
 
 let allTickers;
 
-fs.readFile('backend/tickers.txt', 'utf8', (err, data) => {
+fs.readFile('tickers.txt', 'utf8', (err, data) => {
   if (err) {
     console.error(err);
     return;
@@ -439,6 +444,8 @@ app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) =>
 //       .then((json) => json?.results)
 //       .then(res => console.log('Data for graph: ', res ? res.slice(0, numDatapoints).length : null));
 
+const port = process.env.PORT || 3000;
+
 app.listen(port, () => {
-  console.log(`Test app listening on port ${port}`);
+  console.log(`JoyStock listening on port ${port}`);
 });
