@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogContentText from '@mui/material/DialogContentText';
 import InputLabel from '@mui/material/InputLabel';
 import { Context } from '../Context/Context.js';
+import FormControl from '@mui/material/FormControl';
 
 function ListTab() {
   const [tickerToAdd, setTickerToAdd] = useState('');
@@ -233,22 +234,24 @@ function ListTab() {
               style={{
                 width: '100%',
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
               }}
             >
               <TextField
-                margin="normal"
+                margin="normal"ß
                 name="notifPrice"
                 label="Price"
                 autoFocus
               />
+              <FormControl 
+                fullwidth
+                sx={{
+                  width: '50%',
+                }}
+              >
               <InputLabel id="condition-label">Condition</InputLabel>
               <Select
-                sx={{
-                  marginTop: '.5em',
-                  marginLeft: '2em',
-                  flexGrow: '1',
-                }}
                 margin="normal"
                 autoFocus
                 required
@@ -259,6 +262,7 @@ function ListTab() {
                 <MenuItem value={'<='}>Less than</MenuItem>
                 <MenuItem value={'>='}>Greater than</MenuItem>
               </Select>
+              </FormControl>
             </div>
             <Button
               type="submit"
