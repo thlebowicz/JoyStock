@@ -19,10 +19,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, 'client/build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname+'/client/build/index.html'));
-});
+app.use(express.static(path.join(__dirname, 'frontend/build')));
 
 mongoose.connect('mongodb://localhost:27017/joystock');
 
