@@ -65,7 +65,7 @@ fs.readFile('tickers.txt', 'utf8', (err, data) => {
 
 const options = {
   max: 500,
-  ttl: 1000 * 60 * 24,
+  ttl: 1000 * 60 * 2,
 };
 
 const cache = new LRU(options);
