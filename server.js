@@ -86,8 +86,13 @@ const sendAllNotifications = async () => {
   const allStocks = await Notification.distinct('ticker');
   await Promise.all(
     allStocks.map(async (stock) => {
-      const stockPrice = await fetchTickerPrice(stock);
-      sendNotificationsForStock(stock, stockPrice);
+      try {
+        const stockPrice = await fetchTickerPrice(stock);
+        sendNotificationsForStock(stock, stockPrice);
+      } catch (err) {
+        console.log(`Failed to fetch price for ${stock}`);
+        console.error(err);
+      }
     })
   );
 };
@@ -108,8 +113,6 @@ const sendNotificationsForStock = async (stock, price) => {
     });
     const notifsToSend = [...greaterThan, ...lessThan];
     notifsToSend.forEach((notif) => {
-      console.log("notif", notif);
-      console.log(Date.now(), notif.lastTriggered, Date.now()-notif.lastTriggered, MILLISECONDS_IN_DAY);
       if (Date.now() - notif.lastTriggered > MILLISECONDS_IN_DAY) {
         const { userID, ticker, condition, price } = notif;
         const msg = {
@@ -130,6 +133,7 @@ const sendNotificationsForStock = async (stock, price) => {
             notif.save();
           })
           .catch((error) => {
+            console.log(`Email failed to send for ${userID}`);
             console.error(error);
           });
       }
@@ -139,23 +143,28 @@ const sendNotificationsForStock = async (stock, price) => {
 
 const fetchTickers = async (tickers) => {
   const stockPrices = [];
-
-  const tickerData = await Promise.all(tickers.map(fetchTicker));
-  tickerData.forEach((tickerObj) => {
-    const { ticker, priceData, historicalData } = tickerObj;
-    const priceFeed = priceData.results;
-    const stockDataToSend = priceFeed
-      ? [ticker, priceFeed[0].vw, priceFeed[1].vw]
-      : ['API Limit Reached', 0, 0];
-    for (const statement in FUNDAMENTALS) {
-      for (const field of FUNDAMENTALS[statement]) {
-        const data = historicalData?.[statement]?.[field]?.value;
-        stockDataToSend.push(data ? data : 'No data available');
+  try {
+    const tickerData = await Promise.all(tickers.map(fetchTicker));
+    tickerData.forEach((tickerObj) => {
+      const { ticker, priceData, historicalData } = tickerObj;
+      const priceFeed = priceData.results;
+      const stockDataToSend = priceFeed
+        ? [ticker, priceFeed[0].vw, priceFeed[1].vw]
+        : ['API Limit Reached', 0, 0];
+      for (const statement in FUNDAMENTALS) {
+        for (const field of FUNDAMENTALS[statement]) {
+          const data = historicalData?.[statement]?.[field]?.value;
+          stockDataToSend.push(data ? data : 'No data available');
+        }
       }
-    }
-    stockPrices.push(stockDataToSend);
-  });
-  return stockPrices;
+      stockPrices.push(stockDataToSend);
+    });
+    return stockPrices;
+  } catch (err) {
+    console.log('Failed to fetch stock data');
+    console.error(err);
+    return [];
+  }
 };
 
 const fetchTicker = async (ticker) => {
@@ -165,6 +174,7 @@ const fetchTicker = async (ticker) => {
   if (cache.get(ticker)) {
     ret = cache.get(ticker);
   } else {
+    try {
     const priceDataPromise = fetch(
       QUERY_1 + ticker + timeStr + QUERY_2
     ).then((data) => data.json());
@@ -192,6 +202,11 @@ const fetchTicker = async (ticker) => {
     };
     cache.set(ticker, tickerData);
     ret = tickerData;
+  } catch (err) {
+    console.log(`Failed to fetch data for ${ticker}`);
+    console.error(err);
+    return {};
+  }
   }
   sendNotificationsForStock(ret.ticker, ret?.priceData?.results[0]?.vw);
   return ret;
@@ -216,41 +231,52 @@ app.get('/get-username', authenticateToken, async (req, res) => {
 });
 
 app.get('/get-stock-data', authenticateToken, async (req, res) => {
-  const username = req.username;
-  const user = await User.findOne({
-    userID: username,
-  });
-  const newData = await refreshData(user);
-  res.send(newData);
+  try {
+    const username = req.username;
+    const user = await User.findOne({
+      userID: username,
+    });
+    const newData = await refreshData(user);
+    res.send(newData);
+  } catch (err) {
+    console.log('Couldnt fetch data');
+    console.error(err);
+    res.sendStatus(400);
+  }
 });
 
 const refreshData = async (user) => {
   if (!user) {
     return null;
   }
+  try {
+    const stockQtys = user.stockQuantities;
+    const tickers = [...user.stockQuantities.keys()];
+    const newPrices = await fetchTickers(tickers);
 
-  const stockQtys = user.stockQuantities;
-  const tickers = [...user.stockQuantities.keys()];
-  const newPrices = await fetchTickers(tickers);
-
-  const newData = newPrices.map((arr) => {
-    return {
-      ticker: arr[0],
-      currPrice: arr[1],
-      lastDayPrice: arr[2],
-      revenue: arr[3],
-      netIncome: arr[4],
-      basicEPS: arr[5],
-      assets: arr[6],
-      equity: arr[7],
-      liabilities: arr[8],
-      cfo: arr[9],
-      cfi: arr[10],
-      cff: arr[11],
-      quantity: stockQtys.get(arr[0]),
-    };
-  });
-  return newData;
+    const newData = newPrices.map((arr) => {
+      return {
+        ticker: arr[0],
+        currPrice: arr[1],
+        lastDayPrice: arr[2],
+        revenue: arr[3],
+        netIncome: arr[4],
+        basicEPS: arr[5],
+        assets: arr[6],
+        equity: arr[7],
+        liabilities: arr[8],
+        cfo: arr[9],
+        cfi: arr[10],
+        cff: arr[11],
+        quantity: stockQtys.get(arr[0]),
+      };
+    });
+    return newData;
+  } catch (err) {
+    console.log('Coudlnt refresh data');
+    console.error(err);
+    return [];
+  }
 };
 
 const validateTicker = (tickerStr) => {
@@ -295,8 +321,6 @@ app.post('/add-stock', authenticateToken, jsonParser, async (req, res) => {
 app.post('/login', async (req, res) => {
   const username = req.body.username,
     password = req.body.password;
-  // console.log('Login API call');
-  // console.log(`Username: ${username}, password: ${password}`);
 
   const user = await User.findOne({
     userID: username,
@@ -307,7 +331,6 @@ app.post('/login', async (req, res) => {
     res.json({ status: 'error', error: 'Invalid username' });
   } else {
     const isPasswordValid = password === user.password;
-    // console.log(`Valid pass? ${isPasswordValid}`);
     if (isPasswordValid) {
       const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
       res.json({ status: 'ok', token: token });
@@ -398,18 +421,23 @@ app.post(
   jsonParser,
   async (req, res) => {
     const notifID = req.body.notifID;
-    const notif = await Notification.findOne({
-      notifID: notifID,
-    });
-    if (!notif) {
-      res.json({ status: 'error', error: 'invalid notification' });
-    } else {
-      await notif.remove();
-      const newNotifs = await Notification.find({ userID: req.username });
-      res.send(newNotifs);
-    }
+    try {
+      const notif = await Notification.findOne({
+        notifID: notifID,
+      });
+      if (!notif) {
+        res.json({ status: 'error', error: 'invalid notification' });
+      } else {
+        await notif.remove();
+        const newNotifs = await Notification.find({ userID: req.username });
+        res.send(newNotifs);
+      }
+    } catch (err) {
+    console.log('Couldnt delete notif');
+    console.error(err);
+    res.sendStatus(400);
   }
-);
+});
 
 app.post('/fetch-graph-data', authenticateToken, jsonParser, async (req, res) => {
   const numDatapoints = req.body.numDatapoints, tickers = req.body.tickers, interval = req.body.interval;
