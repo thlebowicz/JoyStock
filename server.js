@@ -11,6 +11,7 @@ const jsonParser = bodyParser.json();
 const LRU = require('lru-cache');
 const fs = require('fs');
 const path = require('path');
+const fetch = require("node-fetch");
 const uri = process.env.MONGODB_URI;
 
 const sgMail = require('@sendgrid/mail');
