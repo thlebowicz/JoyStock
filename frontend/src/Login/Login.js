@@ -23,7 +23,7 @@ function Login({ readData }) {
     const username = event.target.user.value;
     const password = event.target.password.value;
     event.preventDefault();
-    await fetch('http://localhost:3000/login', {
+    await fetch('/login', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
@@ -68,7 +68,7 @@ function Login({ readData }) {
       alert('User must be in email format!'); 
     } else {
       const pass = event.target.newPass.value;
-      fetch('http://localhost:3000/signup', {
+      fetch('/signup', {
         method: 'POST',
         headers: {
           Accept: 'application.json',

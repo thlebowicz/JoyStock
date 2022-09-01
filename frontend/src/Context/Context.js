@@ -14,7 +14,7 @@ const ContextProvider = ({ children }) => {
 	useEffect(() => {
 		console.log("Use effect in context");
 		const getUsername = async () => {
-			const resp = await fetch('http://localhost:3000/get-username', {
+			const resp = await fetch('/get-username', {
 				method: 'GET',
 				headers: {
 					Accept: 'application.json',

@@ -214,7 +214,7 @@ app.get('/get-username', authenticateToken, async (req, res) => {
   res.send({ username: req.username });
 });
 
-app.get('/', authenticateToken, async (req, res) => {
+app.get('/get-stock-data', authenticateToken, async (req, res) => {
   const username = req.username;
   const user = await User.findOne({
     userID: username,

@@ -18,7 +18,7 @@ function NotificationTab() {
   const [notifications, setNotifications] = useState([]);
 
   const readNotifications = () => {
-    fetch('http://localhost:3000/get-notifications', {
+    fetch('/get-notifications', {
       method: 'GET',
       headers: {
         Accept: 'application.json',
@@ -39,7 +39,7 @@ function NotificationTab() {
   
 
   const deleteNotification = (notifID) => {
-    fetch('http://localhost:3000/delete-notification', {
+    fetch('/delete-notification', {
       method: 'POST',
       headers: {
         Accept: 'application.json',

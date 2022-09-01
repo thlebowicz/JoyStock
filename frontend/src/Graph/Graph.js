@@ -22,7 +22,7 @@ function Graph({ selectedTickers }) {
 
 	const getAllData = () => {
     console.log('numPoints:', numPoints);
-		fetch('http://localhost:3000/fetch-graph-data', {
+		fetch('/fetch-graph-data', {
 			method: 'POST',
 			headers: {
 				Accept: 'application.json',

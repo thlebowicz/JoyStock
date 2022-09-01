@@ -41,7 +41,7 @@ function ListTab() {
   };
 
   const readData = () => {
-    fetch('http://localhost:3000/', {
+    fetch('/get-stock-data', {
       method: 'GET',
       headers: {
         Accept: 'application.json',
@@ -61,7 +61,7 @@ function ListTab() {
   }, []);
 
   const addTickerToData = (tickerToAdd, quantity) => {
-    fetch('http://localhost:3000/add-stock', {
+    fetch('/add-stock', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
@@ -88,7 +88,7 @@ function ListTab() {
   };
 
   const deleteTickerFromData = (tickerToDelete) => {
-    fetch('http://localhost:3000/delete-stock', {
+    fetch('/delete-stock', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
@@ -113,7 +113,7 @@ function ListTab() {
     const condition = e.target.notifCondition.value;
     setNotifToggle(false);
     setNotifTicker('');
-    fetch('http://localhost:3000/add-notification', {
+    fetch('/add-notification', {
       method: 'POST',
       headers: {
         Accept: 'application.json',
