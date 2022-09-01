@@ -1,5 +1,7 @@
 # JoyStock
 
+Developed by Thomas Hlebowicz & Hubert Puszklewicz
+
 A full stack mock portfolio tracker built with React, Express, Node JS, and Mongo DB. Auth is handled with Jsonwebtoken, notifications use Twilio, and 
 the price graphs are implemented with Recharts. 
 
