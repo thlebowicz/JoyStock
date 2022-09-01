@@ -11,7 +11,7 @@ const jsonParser = bodyParser.json();
 const LRU = require('lru-cache');
 const fs = require('fs');
 const path = require('path');
-
+const uri = process.env.MONGODB_URI;
 
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -21,7 +21,7 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, 'frontend/build')));
 
-mongoose.connect('mongodb://localhost:27017/joystock');
+mongoose.connect(uri);
 
 // mongoose.connect('');
 
