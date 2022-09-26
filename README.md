@@ -11,7 +11,7 @@ by clicking the mailbox button directly adjacent.
 
 The graph tab will display price trends for stocks in your portfolio for the past specified days (default 10). 
 
-The notification tab displays your current active notifications and allows for deletion. Notifications are sent once a day when triggered by a data refresh.
+The notification tab displays your current active notifications and allows for deletion. Notifications are sent once a day and when triggered by a data refresh.
 
 Data is fetched from the Polygon finance API (https://polygon.io/) and cached for 2 hours at a time. 
 
